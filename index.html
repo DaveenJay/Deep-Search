@@ -1,0 +1,2870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Search - Thinking Bots</title>
+    <style>        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+            background-color: #f8f9fa;
+            color: #1d1d1f;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #6c757d;
+            margin-bottom: 30px;
+        }
+        
+        .search-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 15px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            resize: vertical;
+        }
+        
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #218838;
+        }
+        
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .api-key-input {
+            margin-bottom: 20px;
+        }
+        
+        .api-key-input input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .model-selector {
+            margin-bottom: 20px;
+        }
+        
+        .model-selector label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .model-selector select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 1rem;
+            background-color: white;
+        }
+        
+        .result-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+            display: none;
+        }
+        
+        .result-heading {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .result-content {
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+        
+        .thinking-path {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .thinking-path-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .bot-thinking {
+            background-color: #f0f0f0;
+            border-left: 3px solid #28a745;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .bot-name {
+            font-weight: 600;
+            color: #28a745;
+            margin-bottom: 5px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .loading-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #28a745;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #28a745;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+            display: none;
+        }
+        
+        .live-visualization {
+            margin: 15px 0;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            text-align: left;
+        }
+        
+        .thinking-indicator {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+            border-left: 3px solid #28a745;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .thinking-agent {
+            font-weight: 600;
+            color: #28a745;
+            margin-right: 10px;
+        }
+        
+        .thinking-dots {
+            display: inline-block;
+            width: 50px;
+            text-align: left;
+        }
+        
+        @keyframes thinking {
+            0% { content: '.'; }
+            33% { content: '..'; }
+            66% { content: '...'; }
+            100% { content: ''; }
+        }
+        
+        .thinking-dots::after {
+            content: '';
+            animation: thinking 1.5s infinite;
+        }
+        
+        .live-tree {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            position: relative;
+            padding: 20px 10px;
+            overflow: visible;
+        }
+        
+        .live-node {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            margin: 5px;
+            position: relative;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            cursor: pointer;
+            z-index: 2;
+        }
+        
+        .live-node:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5), 0 0 10px 2px rgba(40, 167, 69, 0.7);
+        }
+        
+        .live-node.pending {
+            background-color: #6c757d;
+        }
+        
+        .live-node.processing {
+            background-color: #007bff;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .live-node.completed {
+            background-color: #28a745;
+        }
+        
+        .live-node.forwarded {
+            background-color: #fd7e14;
+        }
+        
+        .live-node-tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            bottom: 40px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            z-index: 10;
+        }
+        
+        .live-node:hover .live-node-tooltip {
+            opacity: 1;
+        }
+        
+        .live-node-children {
+            display: flex;
+            position: relative;
+            justify-content: center;
+            margin-top: 35px;
+            min-width: 120px;
+            padding-top: 15px;
+        }
+        
+        .live-node-children::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            height: 15px;
+            width: 2px;
+            background-color: #28a745;
+            transform: translateX(-50%);
+        }
+        
+        .live-node-children.multiple-children::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 20%;
+            width: 60%;
+            height: 2px;
+            background-color: #28a745;
+        }
+        
+        .live-node-connector {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            width: 2px;
+            height: 15px;
+            background-color: #28a745;
+            transform: translateX(-50%);
+        }
+        
+        .live-node-children:not(.multiple-children) .live-node-connector {
+            top: -35px;
+            height: 35px;
+        }
+        
+        .live-node.processing {
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5), 0 0 10px 2px rgba(0, 123, 255, 0.7);
+        }
+        
+        .live-status {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .activity-log {
+            margin-top: 15px;
+            max-height: 100px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            text-align: left;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .activity-entry {
+            margin-bottom: 5px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #dee2e6;
+            color: #495057;
+        }
+        
+        .activity-entry:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .thinking-path {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .thinking-path-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .bot-thinking {
+            background-color: #f0f0f0;
+            border-left: 3px solid #28a745;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .bot-name {
+            font-weight: 600;
+            color: #28a745;
+            margin-bottom: 5px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #28a745;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Tree View Styles - Revamped */
+        .tree-container {
+            overflow-x: auto;
+            margin-top: 30px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tree-view {
+            position: relative;
+            padding: 20px 0;
+            min-height: 300px;
+        }
+        
+        .tree-map {
+            position: relative;
+            margin: 0 auto;
+        }
+        
+        .tree-level {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .tree-node {
+            background-color: white;
+            border: 2px solid #28a745;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 0 10px;
+            min-width: 150px;
+            max-width: 180px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tree-node:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .tree-node.selected {
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+        
+        .tree-node-title {
+            font-weight: 600;
+            color: #28a745;
+            margin-bottom: 8px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .tree-node-content {
+            font-size: 0.9rem;
+            max-height: 100px;
+            overflow-y: auto;
+            padding: 8px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            color: #495057;
+        }
+        
+        .tree-connector {
+            position: absolute;
+            pointer-events: none;
+            stroke: #28a745;
+            stroke-width: 2px;
+            fill: none;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-size: 12px;
+            color: white;
+        }
+        
+        .status-badge.pending {
+            background-color: #6c757d;
+        }
+        
+        .status-badge.processing {
+            background-color: #007bff;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .status-badge.completed {
+            background-color: #28a745;
+        }
+        
+        .status-badge.forwarded {
+            background-color: #fd7e14;
+        }
+        
+        .tree-action-indicator {
+            position: absolute;
+            background-color: white;
+            border: 1px solid #28a745;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #28a745;
+            z-index: 2;
+        }
+        
+        .tree-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+            margin-right: 10px;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        /* Thinking visualization */
+        .thinking-bubble {
+            position: absolute;
+            background-color: #fff;
+            border: 1px solid #28a745;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 300px;
+            z-index: 10;
+            display: none;
+            text-align: left;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            top: -5px;
+            left: 105%;
+        }
+        
+        .thinking-bubble::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: -8px;
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-right: 8px solid #28a745;
+        }
+        
+        .thinking-bubble::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: -7px;
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-right: 8px solid #fff;
+        }
+        
+        .arrow-connector {
+            position: absolute;
+            height: 40px;
+            width: 40px;
+            top: 50%;
+            left: 100%;
+            transform: translate(-50%, -50%);
+            color: #28a745;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Thought process visualization */
+        .thought-process {
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .thought-process-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #28a745;
+        }
+        
+        .thought-content {
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+        
+        .thought-type {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 15px;
+            margin-right: 5px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .thought-type.analytical {
+            background-color: #cce5ff;
+            color: #0066cc;
+        }
+        
+        .thought-type.creative {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .thought-type.decision {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .thought-type.questioning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        /* Popover Styles for Detailed Thinking */
+        .thinking-popover {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            padding: 25px;
+            display: none;
+        }
+        
+        .thinking-popover-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .thinking-popover-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #28a745;
+        }
+        
+        .thinking-popover-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6c757d;
+        }
+        
+        .thinking-popover-close:hover {
+            color: #dc3545;
+        }
+        
+        .thinking-popover-content {
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+        
+        .thinking-popover-section {
+            margin-bottom: 20px;
+        }
+        
+        .thinking-popover-section-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #495057;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        /* Log View Styles */
+        .log-container {
+            background-color: #252525;
+            color: #f0f0f0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 30px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .log-entry {
+            margin-bottom: 6px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 6px;
+        }
+        
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+        
+        .log-time {
+            color: #999;
+            margin-right: 8px;
+        }
+        
+        .log-level-info {
+            color: #4dabf7;
+        }
+        
+        .log-level-success {
+            color: #69db7c;
+        }
+        
+        .log-level-warning {
+            color: #ffd43b;
+        }
+        
+        .log-level-error {
+            color: #ff6b6b;
+        }
+        
+        .log-message {
+            margin-left: 8px;
+        }
+        
+        .log-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .log-toggle {
+            background-color: #343a40;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        .log-clear {
+            background-color: #495057;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+        }
+        
+        /* Rate limit status styles */
+        .rate-limit-status {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e9ecef;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: #28a745;
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Deep Search Thinking Bots</h1>
+            <div class="subtitle">A self-organizing tree of AI agents that collaborate to find answers</div>
+            <div class="social-links" style="margin-top: 10px; font-size: 0.9rem; color: #6c757d;">
+                <a href="https://x.com/daveenjay" target="_blank" style="color: #1DA1F2; text-decoration: none;">
+
+                   @DaveenJay
+                </a>
+            </div>
+        </header>
+
+        <div class="search-container">
+            <div class="api-key-input">
+                <label for="api-key">OpenAI API Key:</label>
+                <input type="password" id="api-key" placeholder="Enter your OpenAI API key" />
+            </div>
+            <div class="model-selector">
+                <label for="model-selector">Select Model:</label>
+                <select id="model-selector">
+                    <option value="gpt-4o-mini">GPT 4o mini (Fastest, Most Economical)</option>
+                    <option value="gpt-4">GPT-4 (Most Capable, Higher Quality)</option>
+                    <option value="gpt-4-turbo">GPT-4 Turbo (Balanced Speed & Quality)</option>
+                    <option value="gpt-4o">GPT-4o (Latest Model, Best Performance)</option>
+                </select>
+            </div>
+            <textarea id="prompt-input" placeholder="Enter your question or prompt here..."></textarea>
+            <div class="button-container" style="display: flex; justify-content: space-between;">
+                <button id="search-button">Start Deep Search</button>
+                <button id="clear-storage" style="background-color: #6c757d;">Clear Saved Data</button>
+            </div>
+        </div>
+
+        <div class="loading">
+            <div class="loading-title">Deep Search In Progress</div>
+            <div class="loading-spinner"></div>
+            
+            <!-- Rate limit status indicator -->
+            <div class="rate-limit-status" style="margin-top: 15px; font-size: 0.9rem; color: #6c757d;">
+                <div id="rate-limit-indicator">API usage: 0%</div>
+                <div class="progress" style="height: 8px; margin-top: 5px; border-radius: 4px; background-color: #e9ecef; overflow: hidden;">
+                    <div id="rate-limit-progress" class="progress-bar" style="width: 0%; height: 100%; background-color: #28a745; transition: width 0.5s ease;"></div>
+                </div>
+                <button id="toggle-limit-details" class="log-toggle" style="margin-top: 8px; padding: 4px 8px; font-size: 0.8rem;">Show Details</button>
+            </div>
+            
+            <!-- Detailed token and limits information -->
+            <div id="rate-limit-details" style="display: none; margin-top: 10px; padding: 12px; background-color: #f8f9fa; border-radius: 8px; font-size: 0.85rem;">
+                <h4 style="font-size: 1rem; margin-top: 0; margin-bottom: 10px; color: #495057;">Token & Rate Limit Details</h4>
+                
+                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                    <div style="flex: 1;">
+                        <h5 style="font-size: 0.9rem; margin-top: 0; margin-bottom: 8px; color: #6c757d;">Current Usage</h5>
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            <li id="tokens-this-minute">Tokens (minute): 0</li>
+                            <li id="requests-this-minute">Requests (minute): 0</li>
+                            <li id="tokens-today">Tokens (today): 0</li>
+                            <li id="requests-today">Requests (today): 0</li>
+                        </ul>
+                    </div>
+                    <div style="flex: 1;">
+                        <h5 style="font-size: 0.9rem; margin-top: 0; margin-bottom: 8px; color: #6c757d;">Model Limits</h5>
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            <li id="limit-tokens-minute">TPM: 0</li>
+                            <li id="limit-requests-minute">RPM: 0</li>
+                            <li id="limit-tokens-day">TPD: 0</li>
+                            <li id="limit-requests-day">RPD: 0</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 10px;">
+                    <h5 style="font-size: 0.9rem; margin-top: 0; margin-bottom: 8px; color: #6c757d;">Quota Status</h5>
+                    <div class="limit-bars">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                                <span>Tokens/min</span>
+                                <span id="tpm-percent">0%</span>
+                            </div>
+                            <div class="progress" style="height: 6px; margin-bottom: 8px;">
+                                <div id="tpm-progress" class="progress-bar" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                                <span>Requests/min</span>
+                                <span id="rpm-percent">0%</span>
+                            </div>
+                            <div class="progress" style="height: 6px; margin-bottom: 8px;">
+                                <div id="rpm-progress" class="progress-bar" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                                <span>Tokens/day</span>
+                                <span id="tpd-percent">0%</span>
+                            </div>
+                            <div class="progress" style="height: 6px; margin-bottom: 8px;">
+                                <div id="tpd-progress" class="progress-bar" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                                <span>Requests/day</span>
+                                <span id="rpd-percent">0%</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div id="rpd-progress" class="progress-bar" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 12px; display: flex; justify-content: space-between; font-size: 0.8rem; color: #6c757d;">
+                    <div>Next minute reset: <span id="minute-reset-time">60s</span></div>
+                    <div>Queue length: <span id="queue-length">0</span></div>
+                </div>
+            </div>
+            
+            <div class="live-visualization">
+                <div class="thinking-indicator" id="current-thinking">
+                    <div class="thinking-agent">Initializing...</div>
+                    <div class="thinking-dots"></div>
+                </div>
+                
+                <div class="tree-legend" style="margin-top: 15px; margin-bottom: 15px;">
+                    <div class="legend-item">
+                        <div class="live-node pending" style="width: 20px; height: 20px; margin: 0 5px 0 0;"></div>
+                        <span>Pending</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="live-node processing" style="width: 20px; height: 20px; margin: 0 5px 0 0;"></div>
+                        <span>Processing</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="live-node completed" style="width: 20px; height: 20px; margin: 0 5px 0 0;"></div>
+                        <span>Completed</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="live-node forwarded" style="width: 20px; height: 20px; margin: 0 5px 0 0;"></div>
+                        <span>Forwarded</span>
+                    </div>
+                </div>
+                
+                <div class="live-tree" id="live-tree">
+                    <!-- Live tree visualization will be rendered here -->
+                </div>
+                
+                <div class="live-status" id="live-status">
+                    Setting up agent network...
+                </div>
+                
+                <div class="activity-log" id="activity-log">
+                    <div class="activity-entry">Starting deep search process...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="result-container" id="result-container">
+            <div class="result-heading">Final Answer</div>
+            <div class="result-content" id="final-answer"></div>
+            
+            <div class="thinking-path">
+                <div class="thinking-path-title">Agent Thinking Path</div>
+                <div id="thinking-path-content"></div>
+            </div>
+            
+            <div class="tree-container" id="tree-container">
+                <h3>Search Tree Visualization</h3>
+                <p class="subtitle">See how agents collaborate to solve your question</p>
+                
+                <div class="tree-legend">
+                    <div class="legend-item">
+                        <div class="status-badge pending">⌛</div>
+                        <span>Pending</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="status-badge processing">🔄</div>
+                        <span>Processing</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="status-badge completed">✅</div>
+                        <span>Completed</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="status-badge forwarded">→</div>
+                        <span>Forwarded</span>
+                    </div>
+                </div>
+                
+                <div id="tree-view" class="tree-view">
+                    <!-- Tree will be rendered here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Log View Section -->
+        <div class="log-container" id="log-container">
+            <div class="log-controls">
+                <button class="log-toggle" id="toggle-log">Hide Logs</button>
+                <button class="log-toggle log-clear" id="clear-logs">Clear Logs</button>
+            </div>
+            <div id="log-entries"></div>
+        </div>
+    </div>
+
+    <script>
+        // Rate Limiter for managing API limits
+        class RateLimiter {
+            constructor() {
+                // Store rate limits for different models
+                this.modelLimits = {
+                    'gpt-4o': {
+                        tokensPerMinute: 30000,
+                        requestsPerMinute: 500,
+                        requestsPerDay: 90000,
+                        tokensPerDay: null
+                    },
+                    'gpt-4o-mini': {
+                        tokensPerMinute: 200000,
+                        requestsPerMinute: 500,
+                        requestsPerDay: 10000,
+                        tokensPerDay: 2000000
+                    },
+                    'gpt-3.5-turbo': {
+                        tokensPerMinute: 200000,
+                        requestsPerMinute: 500,
+                        requestsPerDay: 10000,
+                        tokensPerDay: 2000000
+                    },
+                    'gpt-4': {
+                        tokensPerMinute: 10000,
+                        requestsPerMinute: 500,
+                        requestsPerDay: 10000,
+                        tokensPerDay: 100000
+                    },
+                    'gpt-4-turbo': {
+                        tokensPerMinute: 30000,
+                        requestsPerMinute: 500,
+                        requestsPerDay: 90000,
+                        tokensPerDay: null
+                    }
+                };
+                
+                // Initialize usage tracking
+                this.resetUsage();
+                
+                // Initialize request queue
+                this.requestQueue = [];
+                this.isProcessingQueue = false;
+                
+                // Set thresholds for when to start throttling (as a percentage of the limit)
+                this.thresholdPercent = 0.8; // Start throttling at 80% of the limit
+                
+                // Default delay between requests in ms
+                this.baseDelay = 200;
+                
+                // For estimating tokens
+                this.tokensPerCharEstimate = 0.25; // Rough estimate for tokens per character
+            }
+            
+            resetUsage() {
+                const now = new Date();
+                const midnight = new Date(now);
+                midnight.setHours(24, 0, 0, 0);
+                
+                this.usage = {
+                    requestsThisMinute: 0,
+                    tokensThisMinute: 0,
+                    requestsToday: 0,
+                    tokensToday: 0,
+                    minuteStartTime: now,
+                    dayStartTime: now,
+                    nextDayReset: midnight
+                };
+            }
+            
+            updateTimers() {
+                const now = new Date();
+                
+                // Check if we need to reset minute counters
+                if ((now - this.usage.minuteStartTime) >= 60000) {
+                    this.usage.requestsThisMinute = 0;
+                    this.usage.tokensThisMinute = 0;
+                    this.usage.minuteStartTime = now;
+                }
+                
+                // Check if we need to reset day counters
+                if (now >= this.usage.nextDayReset) {
+                    this.usage.requestsToday = 0;
+                    this.usage.tokensToday = 0;
+                    this.usage.dayStartTime = now;
+                    
+                    const midnight = new Date(now);
+                    midnight.setHours(24, 0, 0, 0);
+                    this.usage.nextDayReset = midnight;
+                }
+            }
+            
+            // Estimate tokens from text
+            estimateTokens(text) {
+                if (!text) return 0;
+                
+                // More accurate token estimation
+                // Roughly 4 characters per token for English text
+                const characterCount = text.length;
+                
+                // Count special tokens that take more space
+                const newlines = (text.match(/\n/g) || []).length;
+                const urls = (text.match(/https?:\/\/[^\s]+/g) || []).length;
+                const codeBlocks = (text.match(/```[\s\S]*?```/g) || []).length;
+                
+                // Adjust for these special cases
+                // Each newline is roughly 0.5-1 token
+                // URLs are more token-heavy
+                // Code blocks can be densely packed
+                const baseEstimate = characterCount * 0.25; // 4 chars per token
+                const adjustments = newlines * 0.5 + urls * 5 + codeBlocks * 5;
+                
+                return Math.ceil(baseEstimate + adjustments);
+            }
+            
+            // Record usage for a request
+            recordUsage(modelName, promptText, responseText) {
+                this.updateTimers();
+                
+                // Estimate tokens
+                const promptTokens = this.estimateTokens(promptText);
+                const responseTokens = this.estimateTokens(responseText);
+                const totalTokens = promptTokens + responseTokens;
+                
+                // Update usage counters
+                this.usage.requestsThisMinute++;
+                this.usage.tokensThisMinute += totalTokens;
+                this.usage.requestsToday++;
+                this.usage.tokensToday += totalTokens;
+                
+                return {
+                    promptTokens,
+                    responseTokens,
+                    totalTokens
+                };
+            }
+            
+            // Check if we're approaching rate limits
+            checkRateLimits(modelName) {
+                this.updateTimers();
+                const limits = this.modelLimits[modelName] || this.modelLimits['gpt-3.5-turbo']; // Default to gpt-3.5-turbo limits
+                
+                const minuteRequestPercent = this.usage.requestsThisMinute / limits.requestsPerMinute;
+                const minuteTokenPercent = this.usage.tokensThisMinute / limits.tokensPerMinute;
+                const dayRequestPercent = this.usage.requestsToday / limits.requestsPerDay;
+                const dayTokenPercent = limits.tokensPerDay ? this.usage.tokensToday / limits.tokensPerDay : 0;
+                
+                // Calculate the highest percentage toward any limit
+                const highestPercent = Math.max(
+                    minuteRequestPercent,
+                    minuteTokenPercent,
+                    dayRequestPercent,
+                    dayTokenPercent
+                );
+                
+                return {
+                    isApproachingLimit: highestPercent >= this.thresholdPercent,
+                    isOverLimit: highestPercent >= 1.0,
+                    limitPercent: highestPercent,
+                    minuteRequestPercent,
+                    minuteTokenPercent,
+                    dayRequestPercent,
+                    dayTokenPercent,
+                    timeToNextMinute: 60000 - (new Date() - this.usage.minuteStartTime),
+                    timeToNextDay: this.usage.nextDayReset - new Date()
+                };
+            }
+            
+            // Calculate dynamic delay based on how close we are to limits
+            calculateDelay(modelName) {
+                const limits = this.checkRateLimits(modelName);
+                
+                if (limits.isOverLimit) {
+                    // If we're over the limit, calculate wait time until reset
+                    if (limits.minuteRequestPercent >= 1.0 || limits.minuteTokenPercent >= 1.0) {
+                        // Wait until the next minute
+                        return limits.timeToNextMinute + 100; // Add 100ms buffer
+                    }
+                    
+                    if (limits.dayRequestPercent >= 1.0 || limits.dayTokenPercent >= 1.0) {
+                        // We hit daily limit, need to notify user
+                        throw new Error("Daily API limit reached. Please try again tomorrow.");
+                    }
+                }
+                
+                if (limits.isApproachingLimit) {
+                    // Scale delay based on how close we are to the limit
+                    const scaleFactor = (limits.limitPercent - this.thresholdPercent) / (1 - this.thresholdPercent);
+                    const maxDelay = 2000; // Max 2 second delay
+                    return this.baseDelay + Math.floor(scaleFactor * (maxDelay - this.baseDelay));
+                }
+                
+                return this.baseDelay;
+            }
+            
+            // Add a request to the queue
+            async queueRequest(apiCallFunction, modelName, ...args) {
+                return new Promise((resolve, reject) => {
+                    this.requestQueue.push({
+                        apiCallFunction,
+                        modelName,
+                        args,
+                        resolve,
+                        reject
+                    });
+                    
+                    if (!this.isProcessingQueue) {
+                        this.processQueue();
+                    }
+                });
+            }
+            
+            // Process the queue
+            async processQueue() {
+                if (this.requestQueue.length === 0 || this.isProcessingQueue) {
+                    return;
+                }
+                
+                this.isProcessingQueue = true;
+                
+                try {
+                    const request = this.requestQueue.shift();
+                    const { apiCallFunction, modelName, args, resolve, reject } = request;
+                    
+                    // Check rate limits and calculate delay
+                    let delay = 0;
+                    try {
+                        delay = this.calculateDelay(modelName);
+                    } catch (error) {
+                        // This catches errors like daily limit reached
+                        reject(error);
+                        this.isProcessingQueue = false;
+                        this.processQueue(); // Continue with the next request
+                        return;
+                    }
+                    
+                    if (delay > 0) {
+                        // Log that we're rate limiting
+                        console.log(`Rate limiting: Delaying request by ${delay}ms`);
+                        await new Promise(r => setTimeout(r, delay));
+                    }
+                    
+                    // Execute the API call
+                    try {
+                        const result = await apiCallFunction(...args);
+                        resolve(result);
+                    } catch (error) {
+                        reject(error);
+                    }
+                } catch (error) {
+                    console.error("Error processing queue:", error);
+                }
+                
+                this.isProcessingQueue = false;
+                this.processQueue(); // Process the next request
+            }
+            
+            // Get current usage statistics
+            getUsageStats() {
+                this.updateTimers();
+                return {
+                    ...this.usage,
+                    queueLength: this.requestQueue.length
+                };
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize rate limiter
+            const rateLimiter = new RateLimiter();
+            
+            const apiKeyInput = document.getElementById('api-key');
+            const promptInput = document.getElementById('prompt-input');
+            const searchButton = document.getElementById('search-button');
+            const clearStorageButton = document.getElementById('clear-storage');
+            const resultContainer = document.getElementById('result-container');
+            const finalAnswerDiv = document.getElementById('final-answer');
+            const thinkingPathContent = document.getElementById('thinking-path-content');
+            const treeView = document.getElementById('tree-view');
+            const loadingIndicator = document.querySelector('.loading');
+            const logContainer = document.getElementById('log-container');
+            const logEntries = document.getElementById('log-entries');
+            const toggleLogButton = document.getElementById('toggle-log');
+            const clearLogsButton = document.getElementById('clear-logs');
+            const toggleLimitDetailsButton = document.getElementById('toggle-limit-details');
+            const rateLimitDetails = document.getElementById('rate-limit-details');
+            
+            // LocalStorage keys
+            const API_KEY_STORAGE_KEY = 'deepSearch_apiKey';
+            const LAST_PROMPT_STORAGE_KEY = 'deepSearch_lastPrompt';
+            const MODEL_STORAGE_KEY = 'deepSearch_model';
+            
+            // Retrieve values from localStorage if they exist
+            function loadFromLocalStorage() {
+                try {
+                    const savedApiKey = localStorage.getItem(API_KEY_STORAGE_KEY);
+                    const savedPrompt = localStorage.getItem(LAST_PROMPT_STORAGE_KEY);
+                    const savedModel = localStorage.getItem(MODEL_STORAGE_KEY);
+                    
+                    if (savedApiKey) {
+                        apiKeyInput.value = savedApiKey;
+                        logger.info('API key loaded from localStorage');
+                    }
+                    
+                    if (savedPrompt) {
+                        promptInput.value = savedPrompt;
+                        logger.info('Last prompt loaded from localStorage');
+                    }
+                    
+                    if (savedModel) {
+                        document.getElementById('model-selector').value = savedModel;
+                        logger.info('Model preference loaded from localStorage');
+                    }
+                } catch (error) {
+                    logger.error(`Error loading from localStorage: ${error.message}`);
+                }
+            }
+            
+            // Save values to localStorage
+            function saveToLocalStorage(apiKey, prompt, model) {
+                try {
+                    localStorage.setItem(API_KEY_STORAGE_KEY, apiKey);
+                    localStorage.setItem(LAST_PROMPT_STORAGE_KEY, prompt);
+                    localStorage.setItem(MODEL_STORAGE_KEY, model);
+                    logger.info('Values saved to localStorage');
+                } catch (error) {
+                    logger.error(`Error saving to localStorage: ${error.message}`);
+                }
+            }
+            
+            // Clear localStorage data
+            function clearLocalStorage() {
+                try {
+                    localStorage.removeItem(API_KEY_STORAGE_KEY);
+                    localStorage.removeItem(LAST_PROMPT_STORAGE_KEY);
+                    localStorage.removeItem(MODEL_STORAGE_KEY);
+                    apiKeyInput.value = '';
+                    promptInput.value = '';
+                    document.getElementById('model-selector').value = 'gpt-3.5-turbo'; // Reset to default
+                    logger.info('Cleared saved data from localStorage');
+                    alert('Saved data has been cleared');
+                } catch (error) {
+                    logger.error(`Error clearing localStorage: ${error.message}`);
+                }
+            }
+            
+            // Clear storage button event listener
+            clearStorageButton.addEventListener('click', clearLocalStorage);
+            
+            // Logging functionality
+            const logger = {
+                entries: [],
+                
+                log: function(message, level = 'info') {
+                    const timestamp = new Date().toLocaleTimeString();
+                    const entry = {
+                        time: timestamp,
+                        level: level,
+                        message: message
+                    };
+                    
+                    this.entries.push(entry);
+                    this.renderEntry(entry);
+                    
+                    // Auto-scroll to bottom
+                    logContainer.scrollTop = logContainer.scrollHeight;
+                    
+                    // Also log to console for debugging
+                    console.log(`[${level.toUpperCase()}] ${message}`);
+                },
+                
+                info: function(message) {
+                    this.log(message, 'info');
+                },
+                
+                success: function(message) {
+                    this.log(message, 'success');
+                },
+                
+                warning: function(message) {
+                    this.log(message, 'warning');
+                },
+                
+                error: function(message) {
+                    this.log(message, 'error');
+                },
+                
+                clear: function() {
+                    this.entries = [];
+                    logEntries.innerHTML = '';
+                },
+                
+                renderEntry: function(entry) {
+                    const entryDiv = document.createElement('div');
+                    entryDiv.className = 'log-entry';
+                    
+                    const timeSpan = document.createElement('span');
+                    timeSpan.className = 'log-time';
+                    timeSpan.textContent = entry.time;
+                    
+                    const levelSpan = document.createElement('span');
+                    levelSpan.className = `log-level-${entry.level}`;
+                    levelSpan.textContent = `[${entry.level.toUpperCase()}]`;
+                    
+                    const messageSpan = document.createElement('span');
+                    messageSpan.className = 'log-message';
+                    messageSpan.textContent = entry.message;
+                    
+                    entryDiv.appendChild(timeSpan);
+                    entryDiv.appendChild(levelSpan);
+                    entryDiv.appendChild(messageSpan);
+                    
+                    logEntries.appendChild(entryDiv);
+                }
+            };
+            
+            // Toggle log visibility
+            toggleLogButton.addEventListener('click', function() {
+                const logEntries = document.getElementById('log-entries');
+                if (logEntries.style.display === 'none') {
+                    logEntries.style.display = 'block';
+                    toggleLogButton.textContent = 'Hide Logs';
+                } else {
+                    logEntries.style.display = 'none';
+                    toggleLogButton.textContent = 'Show Logs';
+                }
+            });
+            
+            // Toggle rate limit details visibility
+            toggleLimitDetailsButton.addEventListener('click', function() {
+                if (rateLimitDetails.style.display === 'none') {
+                    rateLimitDetails.style.display = 'block';
+                    toggleLimitDetailsButton.textContent = 'Hide Details';
+                } else {
+                    rateLimitDetails.style.display = 'none';
+                    toggleLimitDetailsButton.textContent = 'Show Details';
+                }
+            });
+            
+            // Clear logs
+            clearLogsButton.addEventListener('click', function() {
+                logger.clear();
+            });
+            
+            // Initial log
+            logger.info('Application initialized');
+            
+            // Load saved values from localStorage
+            loadFromLocalStorage();
+            
+            logger.info('Waiting for user input...');
+            
+            // Update limit details when model selector changes
+            document.getElementById('model-selector').addEventListener('change', function() {
+                const selectedModel = this.value;
+                if (rateLimitDetails.style.display !== 'none') {
+                    updateRateLimitDetails(selectedModel);
+                }
+            });
+            
+            // Agent tree for recording the thinking structure
+            class Agent {
+                constructor(id, name, parentId = null) {
+                    this.id = id;
+                    this.name = name;
+                    this.parentId = parentId;
+                    this.childrenIds = [];
+                    this.thinking = '';
+                    this.answer = null;
+                    this.status = 'pending'; // pending, processing, completed, forwarded
+                }
+            }
+            
+            // Agent tree for recording the thinking structure
+            class AgentTree {
+                constructor() {
+                    this.agents = {};
+                    this.rootId = null;
+                    this.finalAgentId = null;
+                    this.nextId = 1;
+                    this.selectedAgentId = null;
+                }
+                
+                reset() {
+                    this.agents = {};
+                    this.rootId = null;
+                    this.finalAgentId = null;
+                    this.nextId = 1;
+                    this.selectedAgentId = null;
+                }
+                
+                createRootAgent(name) {
+                    const id = this.nextId++;
+                    const agent = new Agent(id, name);
+                    this.agents[id] = agent;
+                    this.rootId = id;
+                    return id;
+                }
+                
+                createChildAgent(parentId, name) {
+                    const id = this.nextId++;
+                    const agent = new Agent(id, name, parentId);
+                    this.agents[id] = agent;
+                    
+                    // Add to parent's children
+                    const parent = this.agents[parentId];
+                    if (parent) {
+                        parent.childrenIds.push(id);
+                    }
+                    
+                    return id;
+                }
+                
+                getAgent(id) {
+                    return this.agents[id];
+                }
+                
+                updateAgentThinking(id, thinking) {
+                    const agent = this.agents[id];
+                    if (agent) {
+                        agent.thinking = thinking;
+                    }
+                }
+                
+                updateAgentStatus(id, status) {
+                    const agent = this.agents[id];
+                    if (agent) {
+                        agent.status = status;
+                    }
+                }
+                
+                setAgentAnswer(id, answer) {
+                    const agent = this.agents[id];
+                    if (agent) {
+                        agent.answer = answer;
+                        agent.status = 'completed';
+                        this.finalAgentId = id;
+                    }
+                }
+                
+                // Get linear path from root to final agent
+                getFinalPath() {
+                    if (!this.finalAgentId || !this.rootId) return [];
+                    
+                    const path = [];
+                    let currentId = this.finalAgentId;
+                    
+                    while (currentId) {
+                        const agent = this.agents[currentId];
+                        path.unshift({
+                            agentName: agent.name,
+                            thinking: agent.thinking
+                        });
+                        currentId = agent.parentId;
+                    }
+                    
+                    return path;
+                }
+                
+                // Get the final answer
+                getFinalAnswer() {
+                    if (!this.finalAgentId) return null;
+                    return this.agents[this.finalAgentId].answer;
+                }
+                
+                // Render the tree visualization
+                renderTree() {
+                    const treeView = document.getElementById('tree-view');
+                    treeView.innerHTML = '';
+                    
+                    if (!this.rootId) return;
+                    
+                    // Create an SVG element for drawing connections
+                    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    svg.setAttribute('width', '100%');
+                    svg.setAttribute('height', '100%');
+                    svg.style.position = 'absolute';
+                    svg.style.top = '0';
+                    svg.style.left = '0';
+                    svg.style.pointerEvents = 'none';
+                    svg.classList.add('tree-connector-container');
+                    
+                    // Create a container for the tree nodes
+                    const treeMap = document.createElement('div');
+                    treeMap.className = 'tree-map';
+                    
+                    // Group agents by level (depth in the tree)
+                    const levelMap = {};
+                    
+                    // Calculate level for each agent
+                    const calculateLevel = (agentId, level) => {
+                        const agent = this.agents[agentId];
+                        if (!agent) return;
+                        
+                        if (!levelMap[level]) {
+                            levelMap[level] = [];
+                        }
+                        
+                        levelMap[level].push(agent);
+                        
+                        // Process children
+                        for (const childId of agent.childrenIds) {
+                            calculateLevel(childId, level + 1);
+                        }
+                    };
+                    
+                    // Start with the root
+                    calculateLevel(this.rootId, 0);
+                    
+                    // Sort levels and render each level
+                    const levels = Object.keys(levelMap).sort((a, b) => Number(a) - Number(b));
+                    
+                    // Create a node for each agent
+                    const nodeRefs = {};
+                    
+                    for (const level of levels) {
+                        const levelDiv = document.createElement('div');
+                        levelDiv.className = 'tree-level';
+                        levelDiv.dataset.level = level;
+                        
+                        // Sort agents to keep consistent ordering
+                        const agentsInLevel = levelMap[level].sort((a, b) => a.id - b.id);
+                        
+                        for (const agent of agentsInLevel) {
+                            const nodeDiv = document.createElement('div');
+                            nodeDiv.className = 'tree-node';
+                            nodeDiv.dataset.agentId = agent.id;
+                            
+                            if (agent.id === this.finalAgentId || agent.id === this.selectedAgentId) {
+                                nodeDiv.classList.add('selected');
+                            }
+                            
+                            // Status badge
+                            let statusIcon = '⌛';
+                            let statusClass = 'pending';
+                            
+                            switch (agent.status) {
+                                case 'processing':
+                                    statusIcon = '🔄';
+                                    statusClass = 'processing';
+                                    break;
+                                case 'completed':
+                                    statusIcon = '✅';
+                                    statusClass = 'completed';
+                                    break;
+                                case 'forwarded':
+                                    statusIcon = '→';
+                                    statusClass = 'forwarded';
+                                    break;
+                            }
+                            
+                            const titleDiv = document.createElement('div');
+                            titleDiv.className = 'tree-node-title';
+                            
+                            const nameSpan = document.createElement('span');
+                            nameSpan.textContent = agent.name;
+                            
+                            const statusBadge = document.createElement('div');
+                            statusBadge.className = `status-badge ${statusClass}`;
+                            statusBadge.textContent = statusIcon;
+                            
+                            titleDiv.appendChild(nameSpan);
+                            titleDiv.appendChild(statusBadge);
+                            
+                            const contentDiv = document.createElement('div');
+                            contentDiv.className = 'tree-node-content';
+                            contentDiv.textContent = agent.thinking.substring(0, 120) + (agent.thinking.length > 120 ? '...' : '');
+                            
+                            nodeDiv.appendChild(titleDiv);
+                            nodeDiv.appendChild(contentDiv);
+                            
+                            // Add click handler to show detailed thinking
+                            nodeDiv.addEventListener('click', () => {
+                                this.showDetailedThinking(agent.id);
+                            });
+                            
+                            // Store reference to the node for drawing connections later
+                            nodeRefs[agent.id] = nodeDiv;
+                            
+                            levelDiv.appendChild(nodeDiv);
+                        }
+                        
+                        treeMap.appendChild(levelDiv);
+                    }
+                    
+                    // Add the tree map to the view
+                    treeView.appendChild(treeMap);
+                    
+                    // Add the SVG for connections
+                    treeView.appendChild(svg);
+                    
+                    // Draw connections after nodes are positioned
+                    setTimeout(() => {
+                        this.drawConnections(svg, nodeRefs);
+                    }, 100);
+                    
+                    // Show detailed thinking for selected agent if any
+                    if (this.selectedAgentId) {
+                        this.showDetailedThinking(this.selectedAgentId);
+                    }
+                }
+                
+                // Draw connections between parent and child nodes
+                drawConnections(svg, nodeRefs) {
+                    // Process each agent to draw connections to its children
+                    for (const agentId in this.agents) {
+                        const agent = this.agents[agentId];
+                        const parentNode = nodeRefs[agentId];
+                        
+                        if (!parentNode || !agent.childrenIds.length) continue;
+                        
+                        // Get parent node position
+                        const parentRect = parentNode.getBoundingClientRect();
+                        const svgRect = svg.getBoundingClientRect();
+                        
+                        const parentX = parentRect.left + parentRect.width / 2 - svgRect.left;
+                        const parentY = parentRect.bottom - svgRect.top;
+                        
+                        // Draw connections to each child
+                        for (const childId of agent.childrenIds) {
+                            const childNode = nodeRefs[childId];
+                            if (!childNode) continue;
+                            
+                            const childRect = childNode.getBoundingClientRect();
+                            const childX = childRect.left + childRect.width / 2 - svgRect.left;
+                            const childY = childRect.top - svgRect.top;
+                            
+                            // Create path element for the connection
+                            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                            path.classList.add('tree-connector');
+                            
+                            // Create a curved path from parent to child
+                            const midY = parentY + (childY - parentY) / 2;
+                            const pathData = `M ${parentX} ${parentY} C ${parentX} ${midY}, ${childX} ${midY}, ${childX} ${childY}`;
+                            
+                            path.setAttribute('d', pathData);
+                            
+                            // Add an action indicator on the path
+                            const actionIndicator = document.createElement('div');
+                            actionIndicator.className = 'tree-action-indicator';
+                            
+                            // Set position in the middle of the path
+                            const indicatorX = (parentX + childX) / 2;
+                            const indicatorY = midY;
+                            
+                            actionIndicator.style.left = `${indicatorX - 15}px`;
+                            actionIndicator.style.top = `${indicatorY - 15}px`;
+                            
+                            // Determine action type
+                            if (agent.childrenIds.length > 1) {
+                                actionIndicator.textContent = '🔀'; // Branch action
+                                actionIndicator.title = 'Branch into multiple specialists';
+                            } else {
+                                actionIndicator.textContent = '➡️'; // Forward action
+                                actionIndicator.title = 'Forward to specialist';
+                            }
+                            
+                            svg.appendChild(path);
+                            treeView.appendChild(actionIndicator);
+                        }
+                    }
+                }
+                
+                // Format thinking text to highlight different thought types
+                formatThinking(thinking) {
+                    if (!thinking) return '';
+                    
+                    // Highlight analytical thinking
+                    let formatted = thinking.replace(/\b(analyzing|analysis|evaluate|compare|examine|therefore|consequently|thus|hence)\b/gi, 
+                        '<span class="thought-type analytical">$1</span>');
+                    
+                    // Highlight creative thinking
+                    formatted = formatted.replace(/\b(imagine|creative|innovative|novel|idea|concept|envision)\b/gi, 
+                        '<span class="thought-type creative">$1</span>');
+                    
+                    // Highlight decision making
+                    formatted = formatted.replace(/\b(decide|decision|choose|select|determine|conclude)\b/gi, 
+                        '<span class="thought-type decision">$1</span>');
+                    
+                    // Highlight questions
+                    formatted = formatted.replace(/\b(what if|how|why|question|consider|possibility)\b/gi, 
+                        '<span class="thought-type questioning">$1</span>');
+                    
+                    return formatted;
+                }
+                
+                // Show detailed thinking for an agent
+                showDetailedThinking(agentId) {
+                    const agent = this.agents[agentId];
+                    if (!agent) return;
+                    
+                    this.selectedAgentId = agentId;
+                    
+                    // Remove existing popover if any
+                    let overlay = document.querySelector('.overlay');
+                    let popover = document.querySelector('.thinking-popover');
+                    
+                    if (overlay) {
+                        document.body.removeChild(overlay);
+                    }
+                    
+                    if (popover) {
+                        document.body.removeChild(popover);
+                    }
+                    
+                    // Create overlay
+                    overlay = document.createElement('div');
+                    overlay.className = 'overlay';
+                    document.body.appendChild(overlay);
+                    
+                    // Create popover
+                    popover = document.createElement('div');
+                    popover.className = 'thinking-popover';
+                    
+                    // Create popover header
+                    const header = document.createElement('div');
+                    header.className = 'thinking-popover-header';
+                    
+                    const title = document.createElement('div');
+                    title.className = 'thinking-popover-title';
+                    title.textContent = agent.name;
+                    
+                    const closeButton = document.createElement('button');
+                    closeButton.className = 'thinking-popover-close';
+                    closeButton.innerHTML = '&times;';
+                    closeButton.addEventListener('click', () => {
+                        overlay.style.display = 'none';
+                        popover.style.display = 'none';
+                    });
+                    
+                    header.appendChild(title);
+                    header.appendChild(closeButton);
+                    
+                    // Create content section
+                    const content = document.createElement('div');
+                    content.className = 'thinking-popover-content';
+                    
+                    // Create thinking section
+                    const thinkingSection = document.createElement('div');
+                    thinkingSection.className = 'thinking-popover-section';
+                    
+                    const thinkingTitle = document.createElement('div');
+                    thinkingTitle.className = 'thinking-popover-section-title';
+                    thinkingTitle.textContent = 'Thinking Process';
+                    
+                    const thinkingContent = document.createElement('div');
+                    thinkingContent.innerHTML = this.formatThinking(agent.thinking);
+                    
+                    thinkingSection.appendChild(thinkingTitle);
+                    thinkingSection.appendChild(thinkingContent);
+                    content.appendChild(thinkingSection);
+                    
+                    // Add answer if agent has one
+                    if (agent.answer) {
+                        const answerSection = document.createElement('div');
+                        answerSection.className = 'thinking-popover-section';
+                        
+                        const answerTitle = document.createElement('div');
+                        answerTitle.className = 'thinking-popover-section-title';
+                        answerTitle.textContent = 'Final Answer';
+                        
+                        const answerContent = document.createElement('div');
+                        answerContent.innerHTML = agent.answer;
+                        
+                        answerSection.appendChild(answerTitle);
+                        answerSection.appendChild(answerContent);
+                        content.appendChild(answerSection);
+                    }
+                    
+                    // Add status information
+                    const statusSection = document.createElement('div');
+                    statusSection.className = 'thinking-popover-section';
+                    
+                    const statusTitle = document.createElement('div');
+                    statusTitle.className = 'thinking-popover-section-title';
+                    statusTitle.textContent = 'Agent Status';
+                    
+                    const statusContent = document.createElement('div');
+                    statusContent.innerHTML = `
+                        <div><strong>Status:</strong> ${agent.status}</div>
+                        <div><strong>Agent ID:</strong> ${agent.id}</div>
+                        <div><strong>Parent Agent:</strong> ${agent.parentId ? this.agents[agent.parentId].name : 'None (Root)'}</div>
+                        <div><strong>Child Agents:</strong> ${agent.childrenIds.length > 0 ? 
+                            agent.childrenIds.map(id => this.agents[id].name).join(', ') : 
+                            'None'}</div>
+                    `;
+                    
+                    statusSection.appendChild(statusTitle);
+                    statusSection.appendChild(statusContent);
+                    content.appendChild(statusSection);
+                    
+                    // Assemble popover
+                    popover.appendChild(header);
+                    popover.appendChild(content);
+                    
+                    // Add popover to the document
+                    document.body.appendChild(popover);
+                    
+                    // Show overlay and popover
+                    overlay.style.display = 'block';
+                    popover.style.display = 'block';
+                    
+                    // Close popovers with Escape key
+                    const escKeyHandler = function(e) {
+                        if (e.key === 'Escape') {
+                            overlay.style.display = 'none';
+                            popover.style.display = 'none';
+                            document.removeEventListener('keydown', escKeyHandler);
+                        }
+                    };
+                    
+                    document.addEventListener('keydown', escKeyHandler);
+                    
+                    // Close popover when clicking on overlay
+                    overlay.addEventListener('click', function(e) {
+                        if (e.target === overlay) {
+                            overlay.style.display = 'none';
+                            popover.style.display = 'none';
+                            document.removeEventListener('keydown', escKeyHandler);
+                        }
+                    });
+                    
+                    // Update selected state in tree
+                    const nodes = document.querySelectorAll('.tree-node');
+                    nodes.forEach(node => {
+                        if (parseInt(node.dataset.agentId) === agentId) {
+                            node.classList.add('selected');
+                        } else {
+                            node.classList.remove('selected');
+                        }
+                    });
+                }
+            }
+            
+            const agentTree = new AgentTree();
+            
+            // Global variables for live visualization
+            let liveTree = null;
+            let liveStatus = null;
+            let activityLog = null;
+            let currentThinking = null;
+            let activeAgentId = null;
+            
+            // Add activity to the live visualization log
+            function addActivity(message) {
+                if (!activityLog) return;
+                
+                const entry = document.createElement('div');
+                entry.className = 'activity-entry';
+                entry.textContent = message;
+                activityLog.appendChild(entry);
+                activityLog.scrollTop = activityLog.scrollHeight;
+            }
+            
+            // Update the currently thinking agent display
+            function updateThinkingIndicator(agentName) {
+                if (!currentThinking) return;
+                
+                const agentElement = currentThinking.querySelector('.thinking-agent');
+                if (agentElement) {
+                    agentElement.textContent = agentName;
+                }
+            }
+            
+            // Update the live status message
+            function updateLiveStatus(message) {
+                if (!liveStatus) return;
+                liveStatus.textContent = message;
+            }
+            
+            // Render the live tree visualization
+            function renderLiveTree(tree) {
+                if (!liveTree) return;
+                liveTree.innerHTML = '';
+                
+                if (!tree || !tree.rootId) return;
+                
+                // Add some descriptive text about the tree visualization
+                const desc = document.createElement('div');
+                desc.style.fontSize = '0.85rem';
+                desc.style.color = '#6c757d';
+                desc.style.marginBottom = '15px';
+                desc.style.textAlign = 'center';
+                desc.innerHTML = 'Colored dots represent agents working on your question.<br>Click any dot to see details.';
+                liveTree.appendChild(desc);
+                
+                // Create and render the root node
+                const rootNode = createLiveNode(tree.agents[tree.rootId], tree);
+                liveTree.appendChild(rootNode);
+            }
+            
+            // Create a live node for visualization
+            function createLiveNode(agent, tree) {
+                if (!agent) return null;
+                
+                const nodeContainer = document.createElement('div');
+                nodeContainer.style.display = 'flex';
+                nodeContainer.style.flexDirection = 'column';
+                nodeContainer.style.alignItems = 'center';
+                nodeContainer.style.position = 'relative';
+                
+                const nodeDiv = document.createElement('div');
+                nodeDiv.className = 'live-node';
+                nodeDiv.dataset.agentId = agent.id;
+                
+                // Add status class
+                let statusClass = 'pending';
+                let statusSymbol = '';
+                
+                switch (agent.status) {
+                    case 'processing':
+                        statusClass = 'processing';
+                        statusSymbol = '🔄';
+                        break;
+                    case 'completed':
+                        statusClass = 'completed';
+                        statusSymbol = '✓';
+                        break;
+                    case 'forwarded':
+                        statusClass = 'forwarded';
+                        statusSymbol = '→';
+                        break;
+                }
+                
+                nodeDiv.classList.add(statusClass);
+                nodeDiv.textContent = statusSymbol;
+                
+                // Add tooltip with agent name
+                const tooltip = document.createElement('div');
+                tooltip.className = 'live-node-tooltip';
+                tooltip.textContent = agent.name;
+                nodeDiv.appendChild(tooltip);
+                
+                // Add click handler to show thinking in popover
+                nodeDiv.addEventListener('click', function() {
+                    showLiveNodeDetails(agent, tree);
+                });
+                
+                // Highlight active agent
+                if (agent.id === activeAgentId) {
+                    nodeDiv.style.boxShadow = '0 0 0 3px rgba(255, 255, 255, 0.8), 0 0 0 5px rgba(0, 123, 255, 0.5)';
+                }
+                
+                nodeContainer.appendChild(nodeDiv);
+                
+                // Add children if any
+                if (agent.childrenIds && agent.childrenIds.length > 0) {
+                    const childrenContainer = document.createElement('div');
+                    childrenContainer.className = 'live-node-children';
+                    
+                    // Add class for multiple children to show horizontal connector
+                    if (agent.childrenIds.length > 1) {
+                        childrenContainer.classList.add('multiple-children');
+                    }
+                    
+                    // For each child, add a connector
+                    for (const childId of agent.childrenIds) {
+                        const childAgent = tree.agents[childId];
+                        if (childAgent) {
+                            const childNode = createLiveNode(childAgent, tree);
+                            if (childNode) {
+                                // Add connector from child to parent
+                                const connector = document.createElement('div');
+                                connector.className = 'live-node-connector';
+                                childNode.prepend(connector);
+                                
+                                childrenContainer.appendChild(childNode);
+                            }
+                        }
+                    }
+                    
+                    nodeContainer.appendChild(childrenContainer);
+                }
+                
+                return nodeContainer;
+            }
+            
+            // Function to show live node details in a popover
+            function showLiveNodeDetails(agent, tree) {
+                if (!agent) return;
+                
+                // Remove existing popover if any
+                let overlay = document.querySelector('.overlay');
+                let popover = document.querySelector('.thinking-popover');
+                
+                if (overlay) {
+                    document.body.removeChild(overlay);
+                }
+                
+                if (popover) {
+                    document.body.removeChild(popover);
+                }
+                
+                // Create overlay
+                overlay = document.createElement('div');
+                overlay.className = 'overlay';
+                document.body.appendChild(overlay);
+                
+                // Create popover
+                popover = document.createElement('div');
+                popover.className = 'thinking-popover';
+                
+                // Create popover header
+                const header = document.createElement('div');
+                header.className = 'thinking-popover-header';
+                
+                const title = document.createElement('div');
+                title.className = 'thinking-popover-title';
+                title.textContent = agent.name + ' (Live)';
+                
+                const closeButton = document.createElement('button');
+                closeButton.className = 'thinking-popover-close';
+                closeButton.innerHTML = '&times;';
+                closeButton.addEventListener('click', () => {
+                    overlay.style.display = 'none';
+                    popover.style.display = 'none';
+                });
+                
+                header.appendChild(title);
+                header.appendChild(closeButton);
+                
+                // Create content section
+                const content = document.createElement('div');
+                content.className = 'thinking-popover-content';
+                
+                // Create status section
+                const statusSection = document.createElement('div');
+                statusSection.className = 'thinking-popover-section';
+                
+                const statusTitle = document.createElement('div');
+                statusTitle.className = 'thinking-popover-section-title';
+                statusTitle.textContent = 'Agent Status';
+                
+                let statusText = 'Waiting';
+                switch (agent.status) {
+                    case 'processing':
+                        statusText = 'Currently processing the question';
+                        break;
+                    case 'completed':
+                        statusText = 'Completed with an answer';
+                        break;
+                    case 'forwarded':
+                        statusText = 'Forwarded to specialized agents';
+                        break;
+                }
+                
+                const statusContent = document.createElement('div');
+                statusContent.innerHTML = `
+                    <div style="margin-bottom: 10px;"><strong>Current Status:</strong> 
+                        <span class="status-badge ${agent.status}">${statusText}</span>
+                    </div>
+                    <div><strong>Agent ID:</strong> ${agent.id}</div>
+                    <div><strong>Parent Agent:</strong> ${agent.parentId ? tree.agents[agent.parentId].name : 'None (Root)'}</div>
+                `;
+                
+                statusSection.appendChild(statusTitle);
+                statusSection.appendChild(statusContent);
+                content.appendChild(statusSection);
+                
+                // Create thinking section if agent has thinking
+                if (agent.thinking) {
+                    const thinkingSection = document.createElement('div');
+                    thinkingSection.className = 'thinking-popover-section';
+                    
+                    const thinkingTitle = document.createElement('div');
+                    thinkingTitle.className = 'thinking-popover-section-title';
+                    thinkingTitle.textContent = 'Current Thinking';
+                    
+                    const thinkingContent = document.createElement('div');
+                    thinkingContent.innerHTML = tree.formatThinking ? 
+                        tree.formatThinking(agent.thinking) : 
+                        agent.thinking;
+                    
+                    thinkingSection.appendChild(thinkingTitle);
+                    thinkingSection.appendChild(thinkingContent);
+                    content.appendChild(thinkingSection);
+                }
+                
+                // Create children section if agent has children
+                if (agent.childrenIds && agent.childrenIds.length > 0) {
+                    const childrenSection = document.createElement('div');
+                    childrenSection.className = 'thinking-popover-section';
+                    
+                    const childrenTitle = document.createElement('div');
+                    childrenTitle.className = 'thinking-popover-section-title';
+                    childrenTitle.textContent = 'Sub-Agents';
+                    
+                    const childrenContent = document.createElement('div');
+                    childrenContent.innerHTML = '<ul style="padding-left: 20px;">' + 
+                        agent.childrenIds.map(id => {
+                            const childAgent = tree.agents[id];
+                            return `<li><strong>${childAgent.name}</strong> - ${childAgent.status}</li>`;
+                        }).join('') + 
+                        '</ul>';
+                    
+                    childrenSection.appendChild(childrenTitle);
+                    childrenSection.appendChild(childrenContent);
+                    content.appendChild(childrenSection);
+                }
+                
+                // Assemble popover
+                popover.appendChild(header);
+                popover.appendChild(content);
+                
+                // Add popover to the document
+                document.body.appendChild(popover);
+                
+                // Show overlay and popover
+                overlay.style.display = 'block';
+                popover.style.display = 'block';
+                
+                // Close popover with Escape key
+                const escKeyHandler = function(e) {
+                    if (e.key === 'Escape') {
+                        overlay.style.display = 'none';
+                        popover.style.display = 'none';
+                        document.removeEventListener('keydown', escKeyHandler);
+                    }
+                };
+                
+                document.addEventListener('keydown', escKeyHandler);
+                
+                // Close popover when clicking on overlay
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === overlay) {
+                        overlay.style.display = 'none';
+                        popover.style.display = 'none';
+                        document.removeEventListener('keydown', escKeyHandler);
+                    }
+                });
+            }
+            
+            // Initialize the live visualization elements
+            function initLiveVisualization() {
+                liveTree = document.getElementById('live-tree');
+                liveStatus = document.getElementById('live-status');
+                activityLog = document.getElementById('activity-log');
+                currentThinking = document.getElementById('current-thinking');
+            }
+            
+            // Update rate limit indicator
+            function updateRateLimitIndicator(limitInfo) {
+                const indicator = document.getElementById('rate-limit-indicator');
+                const progressBar = document.getElementById('rate-limit-progress');
+                
+                if (!indicator || !progressBar) return;
+                
+                const limitPercent = Math.floor(limitInfo.limitPercent * 100);
+                let color = '#28a745'; // Green
+                
+                if (limitPercent >= 90) {
+                    color = '#dc3545'; // Red
+                } else if (limitPercent >= 70) {
+                    color = '#fd7e14'; // Orange
+                } else if (limitPercent >= 50) {
+                    color = '#ffc107'; // Yellow
+                }
+                
+                indicator.textContent = `API usage: ${limitPercent}%`;
+                progressBar.style.width = `${limitPercent}%`;
+                progressBar.style.backgroundColor = color;
+            }
+            
+            // Update detailed token and rate limit information
+            function updateRateLimitDetails(model) {
+                // Get current model limits
+                const modelLimits = rateLimiter.modelLimits[model] || rateLimiter.modelLimits['gpt-3.5-turbo'];
+                const usageStats = rateLimiter.getUsageStats();
+                const limitInfo = rateLimiter.checkRateLimits(model);
+                
+                // Update current usage
+                document.getElementById('tokens-this-minute').textContent = `Tokens (minute): ${usageStats.tokensThisMinute.toLocaleString()}`;
+                document.getElementById('requests-this-minute').textContent = `Requests (minute): ${usageStats.requestsThisMinute}`;
+                document.getElementById('tokens-today').textContent = `Tokens (today): ${usageStats.tokensToday.toLocaleString()}`;
+                document.getElementById('requests-today').textContent = `Requests (today): ${usageStats.requestsToday}`;
+                
+                // Update model limits
+                document.getElementById('limit-tokens-minute').textContent = `TPM: ${modelLimits.tokensPerMinute.toLocaleString()}`;
+                document.getElementById('limit-requests-minute').textContent = `RPM: ${modelLimits.requestsPerMinute}`;
+                document.getElementById('limit-tokens-day').textContent = `TPD: ${modelLimits.tokensPerDay ? modelLimits.tokensPerDay.toLocaleString() : 'N/A'}`;
+                document.getElementById('limit-requests-day').textContent = `RPD: ${modelLimits.requestsPerDay}`;
+                
+                // Update percentage bars
+                const tpmPercent = Math.floor(limitInfo.minuteTokenPercent * 100);
+                const rpmPercent = Math.floor(limitInfo.minuteRequestPercent * 100);
+                const tpdPercent = Math.floor(limitInfo.dayTokenPercent * 100);
+                const rpdPercent = Math.floor(limitInfo.dayRequestPercent * 100);
+                
+                // Set texts
+                document.getElementById('tpm-percent').textContent = `${tpmPercent}%`;
+                document.getElementById('rpm-percent').textContent = `${rpmPercent}%`;
+                document.getElementById('tpd-percent').textContent = `${tpdPercent}%`;
+                document.getElementById('rpd-percent').textContent = `${rpdPercent}%`;
+                
+                // Set progress bars
+                setProgressBar('tpm-progress', tpmPercent);
+                setProgressBar('rpm-progress', rpmPercent);
+                setProgressBar('tpd-progress', tpdPercent);
+                setProgressBar('rpd-progress', rpdPercent);
+                
+                // Update timers
+                const secondsToNextMinute = Math.ceil(limitInfo.timeToNextMinute / 1000);
+                document.getElementById('minute-reset-time').textContent = `${secondsToNextMinute}s`;
+                
+                // Update queue length
+                document.getElementById('queue-length').textContent = usageStats.queueLength;
+            }
+            
+            // Helper to set progress bar with appropriate color
+            function setProgressBar(id, percent) {
+                const progressBar = document.getElementById(id);
+                if (!progressBar) return;
+                
+                let color = '#28a745'; // Green
+                
+                if (percent >= 90) {
+                    color = '#dc3545'; // Red
+                } else if (percent >= 70) {
+                    color = '#fd7e14'; // Orange
+                } else if (percent >= 50) {
+                    color = '#ffc107'; // Yellow
+                }
+                
+                progressBar.style.width = `${percent}%`;
+                progressBar.style.backgroundColor = color;
+            }
+            
+            // Show adaptive rate limit warnings
+            function showRateLimitWarning(limitInfo, model) {
+                if (!limitInfo || !model) return;
+                
+                // Only show warnings if we're at 60% or higher
+                if (limitInfo.limitPercent < 0.6) return;
+                
+                const limitPercent = Math.floor(limitInfo.limitPercent * 100);
+                let message = '';
+                let messageType = 'info';
+                
+                if (limitPercent >= 90) {
+                    messageType = 'error';
+                    // Suggest switching to less resource-intensive model
+                    if (model === 'gpt-4' || model === 'gpt-4-turbo') {
+                        message = `Critical: API usage at ${limitPercent}%. Consider switching to gpt-4o-mini or gpt-3.5-turbo to avoid disruption.`;
+                    } else if (model === 'gpt-4o') {
+                        message = `Critical: API usage at ${limitPercent}%. Consider switching to gpt-4o-mini to avoid disruption.`;
+                    } else {
+                        message = `Critical: API usage at ${limitPercent}%. Further requests will be delayed until limits reset.`;
+                    }
+                } else if (limitPercent >= 75) {
+                    messageType = 'warning';
+                    message = `Warning: API usage at ${limitPercent}%. Requests may be delayed to avoid hitting rate limits.`;
+                } else {
+                    message = `Notice: API usage at ${limitPercent}%. Rate limiting is active to manage request flow.`;
+                }
+                
+                logger[messageType](message);
+                
+                // Also show message in activity log
+                if (limitPercent >= 75) {
+                    addActivity(message);
+                }
+                
+                // Update status for critical warnings
+                if (limitPercent >= 90) {
+                    updateLiveStatus(message);
+                }
+            }
+            
+            // Schedule regular rate limit updates (every 5 seconds during processing)
+            function startRateLimitUpdates(model) {
+                const updateInterval = setInterval(() => {
+                    if (document.querySelector('.loading').style.display !== 'block') {
+                        clearInterval(updateInterval);
+                        return;
+                    }
+                    
+                    const limitInfo = rateLimiter.checkRateLimits(model);
+                    updateRateLimitIndicator(limitInfo);
+                    updateRateLimitDetails(model);
+                    showRateLimitWarning(limitInfo, model);
+                }, 5000);
+                
+                return updateInterval;
+            }
+            
+            searchButton.addEventListener('click', async function() {
+                const apiKey = apiKeyInput.value.trim();
+                const prompt = promptInput.value.trim();
+                const model = document.getElementById('model-selector').value;
+                
+                if (!apiKey) {
+                    logger.error('API key is missing');
+                    alert("Please enter your OpenAI API key");
+                    return;
+                }
+                
+                if (!prompt) {
+                    logger.error('Prompt is empty');
+                    alert("Please enter a question or prompt");
+                    return;
+                }
+                
+                // Save values to localStorage
+                saveToLocalStorage(apiKey, prompt, model);
+                
+                // Reset and prepare UI
+                agentTree.reset();
+                finalAnswerDiv.textContent = '';
+                thinkingPathContent.innerHTML = '';
+                treeView.innerHTML = '';
+                resultContainer.style.display = 'none';
+                
+                // Initialize live visualization
+                initLiveVisualization();
+                activityLog.innerHTML = '<div class="activity-entry">Starting deep search process...</div>';
+                liveTree.innerHTML = '';
+                
+                loadingIndicator.style.display = 'block';
+                searchButton.disabled = true;
+                
+                // Initialize rate limit indicator
+                updateRateLimitIndicator({ limitPercent: 0 });
+                const rateUpdateInterval = startRateLimitUpdates(model);
+                
+                // Initial update of detailed limit information
+                updateRateLimitDetails(model);
+                
+                logger.info('Starting deep search process');
+                logger.info(`User prompt: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`);
+                logger.info(`Using model: ${model}`);
+                
+                try {
+                    // Create the root agent
+                    const rootAgentId = agentTree.createRootAgent("Root Agent");
+                    activeAgentId = rootAgentId;
+                    
+                    // Update live visualization
+                    updateThinkingIndicator("Root Agent");
+                    updateLiveStatus("Analyzing question to determine the best approach...");
+                    addActivity("Created Root Agent to analyze the question");
+                    renderLiveTree(agentTree);
+                    
+                    // Start the search with the root agent
+                    logger.info('Starting with root agent');
+                    const finalResult = await processWithAgentTree(prompt, apiKey, rootAgentId, model);
+                    
+                    // Display final result
+                    finalAnswerDiv.textContent = finalResult;
+                    logger.success('Search completed successfully');
+                    
+                    // Display thinking path (linear path from root to final agent)
+                    const finalPath = agentTree.getFinalPath();
+                    logger.info(`Final path includes ${finalPath.length} agents`);
+                    
+                    finalPath.forEach(step => {
+                        const botThinkingDiv = document.createElement('div');
+                        botThinkingDiv.className = 'bot-thinking';
+                        
+                        const botNameDiv = document.createElement('div');
+                        botNameDiv.className = 'bot-name';
+                        botNameDiv.textContent = step.agentName;
+                        
+                        const thinkingDiv = document.createElement('div');
+                        thinkingDiv.textContent = step.thinking;
+                        
+                        botThinkingDiv.appendChild(botNameDiv);
+                        botThinkingDiv.appendChild(thinkingDiv);
+                        thinkingPathContent.appendChild(botThinkingDiv);
+                    });
+                    
+                    // Render the tree visualization
+                    agentTree.renderTree();
+                    
+                    resultContainer.style.display = 'block';
+                    
+                    // Clean up rate limit updates
+                    clearInterval(rateUpdateInterval);
+                } catch (error) {
+                    console.error("Error during deep search:", error);
+                    logger.error(`Search error: ${error.message}`);
+                    alert("An error occurred during the deep search: " + error.message);
+                    
+                    // Clean up rate limit updates even on error
+                    clearInterval(rateUpdateInterval);
+                } finally {
+                    loadingIndicator.style.display = 'none';
+                    searchButton.disabled = false;
+                }
+            });
+            
+            async function processWithAgentTree(prompt, apiKey, agentId, model = 'gpt-3.5-turbo') {
+                const agent = agentTree.getAgent(agentId);
+                if (!agent) {
+                    throw new Error(`Agent with ID ${agentId} not found`);
+                }
+                
+                // Update the active agent
+                activeAgentId = agentId;
+                
+                logger.info(`Processing with ${agent.name} (ID: ${agentId})`);
+                agentTree.updateAgentStatus(agentId, 'processing');
+                
+                // Update live visualization
+                updateThinkingIndicator(agent.name);
+                updateLiveStatus(`${agent.name} is analyzing the question...`);
+                addActivity(`${agent.name} is now thinking about the problem`);
+                renderLiveTree(agentTree);
+                
+                // Update tree visualization
+                agentTree.renderTree();
+                
+                // Create a system message that explains the agent's role and deep search tree capability
+                const systemMessage = `You are ${agent.name}, an AI agent in a collaborative tree-based network.
+
+When you receive a question, you have three options:
+1. Answer the question directly if you can provide a high-quality response
+2. Create a SINGLE new specialized agent if one specific expert would be better
+3. Create MULTIPLE sub-agents (2-3) to tackle different aspects of the question in parallel
+
+If you choose to create new agents, you must:
+1. Create specific, descriptive names for each new agent based on their expertise
+2. Explain why each specialized agent is needed for this question
+3. Specify what aspect of the question each agent should focus on
+
+Output format (for direct answer):
+{
+    "thinking": "Your detailed reasoning about the question",
+    "action": "answer",
+    "answer": "Your comprehensive answer to the question"
+}
+
+Output format (for creating a single agent):
+{
+    "thinking": "Your reasoning for why a specialist is needed",
+    "action": "forward",
+    "newAgent": "Name of the specialized agent"
+}
+
+Output format (for creating multiple agents):
+{
+    "thinking": "Your reasoning for why the question should be split",
+    "action": "branch",
+    "subAgents": [
+        {"name": "First specialized agent name", "focus": "What this agent should focus on"},
+        {"name": "Second specialized agent name", "focus": "What this agent should focus on"},
+        {"name": "Third specialized agent name", "focus": "What this agent should focus on (optional)"}
+    ]
+}
+
+IMPORTANT: Always respond in valid JSON format. The maximum depth of the agent tree is 4 levels.`;
+                
+                // Determine if we should stop due to maximum depth
+                const isMaxDepth = getAgentDepth(agentId) >= 4;
+                const maxDepthMessage = isMaxDepth ? 
+                    "\n\nNOTE: You have reached the maximum tree depth. You MUST choose 'answer' as your action." : "";
+                
+                logger.info('Preparing API request to OpenAI');
+
+                // Create a function that makes the actual API call
+                const makeApiCall = async () => {
+                    logger.info('Sending request to OpenAI API');
+                    try {
+                        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${apiKey}`
+                            },
+                            body: JSON.stringify({
+                                model: model,
+                                messages: [
+                                    { role: 'system', content: systemMessage + maxDepthMessage },
+                                    { role: 'user', content: prompt }
+                                ],
+                                temperature: 0.7
+                            })
+                        });
+                        
+                        logger.info('Received response from OpenAI API');
+                        
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            // Check if it's a rate limit error
+                            if (
+                                errorData.error && 
+                                (errorData.error.type === 'rate_limit_exceeded' || 
+                                 errorData.error.message.includes('rate limit'))
+                            ) {
+                                logger.warning('Rate limit exceeded. Will retry after delay.');
+                                
+                                // If rate limit error contains information about retry-after, use that
+                                const retryAfter = response.headers.get('retry-after');
+                                let retryDelay = 60000; // Default 1 minute
+                                
+                                if (retryAfter) {
+                                    retryDelay = parseInt(retryAfter) * 1000;
+                                    logger.info(`Will retry after ${retryDelay/1000} seconds (based on retry-after header)`);
+                                }
+                                
+                                updateLiveStatus(`Rate limit reached. Retrying in ${Math.ceil(retryDelay/1000)} seconds...`);
+                                addActivity(`Hit rate limit. Pausing for ${Math.ceil(retryDelay/1000)} seconds.`);
+                                
+                                // Wait for the specified retry period
+                                await new Promise(r => setTimeout(r, retryDelay));
+                                
+                                // Try again recursively, after the delay
+                                return await makeApiCall();
+                            }
+                            
+                            logger.error(`API error: ${errorData.error.message}`);
+                            throw new Error(`API error: ${errorData.error.message}`);
+                        }
+                        
+                        const responseData = await response.json();
+                        const agentResponse = responseData.choices[0].message.content.trim();
+
+                        // Record the token usage
+                        const fullPrompt = systemMessage + maxDepthMessage + prompt;
+                        rateLimiter.recordUsage(model, fullPrompt, agentResponse);
+                        
+                        // Update status with rate limit info
+                        const usageStats = rateLimiter.getUsageStats();
+                        const rateLimitInfo = rateLimiter.checkRateLimits(model);
+                        
+                        if (rateLimitInfo.isApproachingLimit) {
+                            const limitPercent = Math.floor(rateLimitInfo.limitPercent * 100);
+                            logger.warning(`Approaching rate limit: ${limitPercent}% of limit used`);
+                            updateLiveStatus(`Rate limiting active (${limitPercent}% of limit used)`);
+                        }
+                        
+                        return agentResponse;
+                    } catch (error) {
+                        // For network errors, we should retry
+                        if (error.name === 'TypeError' && error.message.includes('network')) {
+                            logger.warning('Network error. Will retry after short delay.');
+                            await new Promise(r => setTimeout(r, 5000));
+                            return await makeApiCall();
+                        }
+                        throw error;
+                    }
+                };
+                
+                // Make the API call through the rate limiter
+                try {
+                    // Queue the API request with the rate limiter
+                    const agentResponse = await rateLimiter.queueRequest(makeApiCall, model);
+                    
+                    logger.info('Successfully received response data');
+                    
+                    // Parse the JSON response
+                    let parsedResponse;
+                    try {
+                        parsedResponse = JSON.parse(agentResponse);
+                        logger.info('Successfully parsed JSON response from agent');
+                    } catch (error) {
+                        logger.error('Failed to parse JSON response from agent');
+                        logger.error(`Raw response: ${agentResponse.substring(0, 100)}...`);
+                        throw new Error("The agent did not respond with valid JSON");
+                    }
+                    
+                    // Update the agent's thinking
+                    agentTree.updateAgentThinking(agentId, parsedResponse.thinking);
+                    
+                    // Force answer if at max depth
+                    if (isMaxDepth && parsedResponse.action !== 'answer') {
+                        logger.warning('Agent at max depth tried to create more agents. Forcing answer.');
+                        parsedResponse.action = 'answer';
+                        if (!parsedResponse.answer) {
+                            parsedResponse.answer = "I've reached the maximum depth of analysis and must provide an answer: " + 
+                                parsedResponse.thinking;
+                        }
+                    }
+                    
+                    // Process based on the action
+                    if (parsedResponse.action === 'answer') {
+                        // Agent provides direct answer
+                        logger.success(`${agent.name} provided an answer`);
+                        agentTree.setAgentAnswer(agentId, parsedResponse.answer);
+                        
+                        // Update live visualization
+                        updateLiveStatus(`${agent.name} found an answer!`);
+                        addActivity(`${agent.name} provided the final answer`);
+                        renderLiveTree(agentTree);
+                        
+                        agentTree.renderTree();
+                        return parsedResponse.answer;
+                        
+                    } else if (parsedResponse.action === 'forward') {
+                        // Agent forwards to a single agent
+                        const newAgentName = parsedResponse.newAgent;
+                        logger.info(`${agent.name} is forwarding to ${newAgentName}`);
+                        
+                        // Create the new agent
+                        const newAgentId = agentTree.createChildAgent(agentId, newAgentName);
+                        
+                        // Update the current agent status
+                        agentTree.updateAgentStatus(agentId, 'forwarded');
+                        
+                        // Update live visualization
+                        updateLiveStatus(`${agent.name} delegated to specialist: ${newAgentName}`);
+                        addActivity(`${agent.name} created a specialized agent: ${newAgentName}`);
+                        renderLiveTree(agentTree);
+                        
+                        agentTree.renderTree();
+                        
+                        // Process with the new agent
+                        return await processWithAgentTree(prompt, apiKey, newAgentId, model);
+                        
+                    } else if (parsedResponse.action === 'branch') {
+                        // Agent creates multiple sub-agents
+                        const subAgents = parsedResponse.subAgents;
+                        logger.info(`${agent.name} is branching to ${subAgents.length} sub-agents`);
+                        
+                        // Create all sub-agents
+                        const subAgentIds = [];
+                        for (const subAgent of subAgents) {
+                            const subAgentId = agentTree.createChildAgent(agentId, subAgent.name);
+                            subAgentIds.push({
+                                id: subAgentId,
+                                focus: subAgent.focus,
+                                name: subAgent.name
+                            });
+                            
+                            // Update live visualization for each new agent
+                            addActivity(`${agent.name} created sub-agent: ${subAgent.name}`);
+                        }
+                        
+                        // Update the current agent status
+                        agentTree.updateAgentStatus(agentId, 'forwarded');
+                        
+                        // Update live visualization
+                        updateLiveStatus(`${agent.name} split the question into ${subAgents.length} parts`);
+                        renderLiveTree(agentTree);
+                        
+                        agentTree.renderTree();
+                        
+                        // Update visualization to show parallel processing
+                        updateLiveStatus(`Processing ${subAgents.length} aspects in parallel...`);
+                        
+                        // Process each sub-agent in parallel and gather their results
+                        const subPromises = subAgentIds.map(subAgent => {
+                            const focusedPrompt = `${prompt}\n\nFocus specifically on this aspect: ${subAgent.focus}`;
+                            return processWithAgentTree(focusedPrompt, apiKey, subAgent.id, model);
+                        });
+                        
+                        // Wait for all sub-agents to complete
+                        const subResults = await Promise.all(subPromises);
+                        
+                        // Combine the results
+                        const combinedResults = subResults.map((result, index) => {
+                            return `${subAgentIds[index].name}:\n${result}`;
+                        }).join('\n\n');
+                        
+                        // Create a synthesis agent to combine the results
+                        const synthesisAgentName = "Synthesis Agent";
+                        const synthesisAgentId = agentTree.createChildAgent(agentId, synthesisAgentName);
+                        
+                        // Update live visualization
+                        addActivity(`Created ${synthesisAgentName} to combine all results`);
+                        updateLiveStatus(`${synthesisAgentName} is combining insights from all sub-agents`);
+                        renderLiveTree(agentTree);
+                        
+                        agentTree.renderTree();
+                        
+                        // Create a synthesis prompt
+                        const synthesisPrompt = `
+                        Here are the responses from multiple specialized agents regarding this question:
+                        "${prompt}"
+                        
+                        Agent responses:
+                        ${combinedResults}
+                        
+                        Please synthesize these responses into a single coherent answer. Address any conflicts or contradictions.
+                        Focus on providing a comprehensive response that integrates the insights from all specialized agents.
+                        `;
+                        
+                        // Process with the synthesis agent
+                        return await processWithAgentTree(synthesisPrompt, apiKey, synthesisAgentId, model);
+                    } else {
+                        // Invalid action
+                        logger.error(`Invalid action: ${parsedResponse.action}`);
+                        throw new Error(`Invalid action: ${parsedResponse.action}`);
+                    }
+                    
+                } catch (error) {
+                    // Handle rate limit errors specially
+                    if (error.message && error.message.includes("rate limit")) {
+                        logger.warning(`Rate limit error: ${error.message}`);
+                        updateLiveStatus(`Rate limit reached. Waiting for limit reset...`);
+                        addActivity(`Rate limiting: pausing for a minute to respect API limits`);
+                        
+                        // Wait for a minute and try again
+                        await new Promise(r => setTimeout(r, 61000));
+                        return processWithAgentTree(prompt, apiKey, agentId, model);
+                    }
+                    
+                    logger.error(`Error in processWithAgentTree: ${error.message}`);
+                    throw error;
+                }
+            }
+            
+            // Helper function to get agent depth in the tree
+            function getAgentDepth(agentId) {
+                let depth = 0;
+                let currentId = agentId;
+                let currentAgent = agentTree.getAgent(currentId);
+                
+                while (currentAgent && currentAgent.parentId !== null) {
+                    depth++;
+                    currentId = currentAgent.parentId;
+                    currentAgent = agentTree.getAgent(currentId);
+                }
+                
+                return depth;
+            }
+        });
+    </script>
+</body>
+</html>
