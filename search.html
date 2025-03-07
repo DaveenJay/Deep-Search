@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Search AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6366F1;
+            --primary-hover: #4F46E5;
+            --text-color: #1F2937;
+            --text-light: #6B7280;
+            --bg-color: #F9FAFB;
+            --card-bg: #FFFFFF;
+            --border-color: #E5E7EB;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 1rem;
+            --radius-full: 9999px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        .initial-view {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 700px;
+        }
+        
+        .logo {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 1.5rem;
+            transition: all 0.5s ease;
+            background: linear-gradient(135deg, var(--primary-color), #8B5CF6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+        
+        .tagline {
+            font-size: 1.25rem;
+            color: var(--text-light);
+            margin-bottom: 2.5rem;
+            font-weight: 400;
+        }
+        
+        .search-container {
+            margin-bottom: 40px;
+            transition: all 0.5s ease;
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+        }
+        
+        .search-container.bottom {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            max-width: 700px;
+            background-color: var(--card-bg);
+            padding: 10px 15px;
+            margin-bottom: 0;
+            border-radius: var(--radius-full);
+            box-shadow: var(--shadow-lg);
+            z-index: 100;
+            border: 1px solid var(--border-color);
+        }
+        
+        .search-field-wrapper {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+        
+        .prompt-field {
+            width: 100%;
+            padding: 16px 60px 16px 24px;
+            font-size: 1.1rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-full);
+            outline: none;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            background-color: var(--card-bg);
+        }
+        
+        .search-container.bottom .prompt-field {
+            padding: 12px 50px 12px 20px;
+            background-color: #F3F4F6;
+        }
+        
+        .prompt-field:focus {
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-color);
+        }
+        
+        .search-button {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(99, 102, 241, 0.3);
+        }
+        
+        .search-container.bottom .search-button {
+            width: 36px;
+            height: 36px;
+        }
+        
+        .search-button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-50%) scale(1.05);
+        }
+        
+        .search-button svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        
+        .results-container {
+            display: none;
+            text-align: left;
+            margin: auto;
+            max-width: 800px;
+            width: 100%;
+        }
+        
+        .result-item {
+            margin-bottom: 24px;
+            padding: 24px;
+            background-color: var(--card-bg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .result-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .result-title {
+            font-size: 1.25rem;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .result-content {
+            color: var(--text-light);
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+        
+        .content-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-bottom: 100px; /* Space for the bottom search bar */
+            width: 100%;
+        }
+        
+        .loading-animation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .dot {
+            width: 10px;
+            height: 10px;
+            margin: 0 5px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+        
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(0.8);
+                opacity: 0.6;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2.5rem;
+            }
+            
+            .tagline {
+                font-size: 1rem;
+                margin-bottom: 2rem;
+            }
+            
+            .search-container.bottom {
+                width: 90%;
+                padding: 8px 12px;
+            }
+            
+            .result-item {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="initial-view" id="initialView">
+            <div class="logo" id="logo">Deep Search</div>
+            
+            <div class="search-container" id="searchContainer">
+                <div class="search-field-wrapper">
+                    <input type="text" class="prompt-field" id="promptField" placeholder="Ask me anything...">
+                    <button class="search-button" id="searchButton">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M13 5l7 7-7 7"></path>
+                            <path d="M20 12H4"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content-area">
+            <div class="results-container" id="results">
+                <!-- Results will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const initialView = document.getElementById('initialView');
+            const logo = document.getElementById('logo');
+            const promptField = document.getElementById('promptField');
+            const searchButton = document.getElementById('searchButton');
+            const resultsContainer = document.getElementById('results');
+            const searchContainer = document.getElementById('searchContainer');
+            
+            searchButton.addEventListener('click', function() {
+                const prompt = promptField.value.trim();
+                
+                if (prompt) {
+                    // Hide initial view
+                    initialView.style.display = 'none';
+                    
+                    // Move search container to bottom
+                    document.body.appendChild(searchContainer);
+                    searchContainer.classList.add('bottom');
+                    
+                    // Show loading state
+                    resultsContainer.style.display = 'block';
+                    resultsContainer.innerHTML = `
+                        <div class="result-item">
+                            <div class="loading-animation">
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                            </div>
+                            <p style="text-align: center; color: var(--text-light);">Processing your prompt...</p>
+                        </div>
+                    `;
+                    
+                    // Simulate AI processing (in a real app, this would be an API call)
+                    setTimeout(function() {
+                        generateResults(prompt);
+                    }, 1500);
+                }
+            });
+            
+            // Allow pressing Enter to search
+            promptField.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchButton.click();
+                }
+            });
+            
+            function generateResults(prompt) {
+                // In a real application, this would call your AI API
+                // For now, we'll simulate some results
+                
+                const sampleResponses = [
+                    {
+                        title: "AI-Generated Response",
+                        content: `Here's what I found about "${prompt}": This is a simulated AI response that would normally contain information relevant to your prompt. In a real implementation, this would be generated by your AI model based on the user's input.`
+                    },
+                    {
+                        title: "Additional Information",
+                        content: "The AI might provide additional context or related information here, expanding on the initial response to give a more comprehensive answer."
+                    },
+                    {
+                        title: "Further Reading",
+                        content: "Sometimes the AI might suggest resources or additional queries to help you explore the topic further."
+                    }
+                ];
+                
+                // Clear previous results and display new ones
+                resultsContainer.innerHTML = '';
+                
+                sampleResponses.forEach(response => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'result-item';
+                    
+                    const resultTitle = document.createElement('div');
+                    resultTitle.className = 'result-title';
+                    resultTitle.textContent = response.title;
+                    
+                    const resultContent = document.createElement('div');
+                    resultContent.className = 'result-content';
+                    resultContent.textContent = response.content;
+                    
+                    resultItem.appendChild(resultTitle);
+                    resultItem.appendChild(resultContent);
+                    resultsContainer.appendChild(resultItem);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
