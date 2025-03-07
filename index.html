@@ -1863,6 +1863,9 @@
                     popover = document.createElement('div');
                     popover.className = 'thinking-popover';
                     
+                    // Calculate agent depth
+                    const agentDepth = getAgentDepth(agentId);
+                    
                     // Create popover header
                     const header = document.createElement('div');
                     header.className = 'thinking-popover-header';
@@ -1870,6 +1873,25 @@
                     const title = document.createElement('div');
                     title.className = 'thinking-popover-title';
                     title.textContent = agent.name;
+                    
+                    // Add depth indicator for all agents
+                    const depthIndicator = document.createElement('span');
+                    depthIndicator.style.marginLeft = '10px';
+                    depthIndicator.style.fontSize = '0.8rem';
+                    depthIndicator.style.backgroundColor = agentDepth >= 4 ? '#dc3545' : 
+                                                          agentDepth >= 3 ? '#ffc107' : '#6c757d';
+                    depthIndicator.style.color = 'white';
+                    depthIndicator.style.padding = '2px 6px';
+                    depthIndicator.style.borderRadius = '4px';
+                    depthIndicator.textContent = `Depth: ${agentDepth}`;
+                    
+                    if (agentDepth >= 4) {
+                        depthIndicator.title = "Maximum depth reached - this agent must provide a direct answer";
+                    } else if (agentDepth >= 3) {
+                        depthIndicator.title = "Near maximum depth - next agent will be at max depth";
+                    }
+                    
+                    title.appendChild(depthIndicator);
                     
                     const closeButton = document.createElement('button');
                     closeButton.className = 'thinking-popover-close';
@@ -1928,12 +1950,18 @@
                     
                     const statusContent = document.createElement('div');
                     statusContent.innerHTML = `
-                        <div><strong>Status:</strong> ${agent.status}</div>
+                        <div style="margin-bottom: 10px;"><strong>Current Status:</strong> 
+                            <span class="status-badge ${agent.status}">${statusText}</span>
+                        </div>
                         <div><strong>Agent ID:</strong> ${agent.id}</div>
                         <div><strong>Parent Agent:</strong> ${agent.parentId ? this.agents[agent.parentId].name : 'None (Root)'}</div>
-                        <div><strong>Child Agents:</strong> ${agent.childrenIds.length > 0 ? 
-                            agent.childrenIds.map(id => this.agents[id].name).join(', ') : 
-                            'None'}</div>
+                        <div><strong>Depth Level:</strong> ${agentDepth} ${
+                            agentDepth >= 4 ? 
+                            '<span style="color: #dc3545; font-weight: bold;">(Max Depth - Must Answer Directly)</span>' : 
+                            agentDepth === 3 ? 
+                            '<span style="color: #ffc107;">(Near Max Depth - Next Level is Final)</span>' : 
+                            ''
+                        }</div>
                     `;
                     
                     statusSection.appendChild(statusTitle);
@@ -2054,6 +2082,35 @@
                 nodeDiv.className = 'live-node';
                 nodeDiv.dataset.agentId = agent.id;
                 
+                // Calculate agent depth
+                const agentDepth = getAgentDepth(agent.id);
+                
+                // Add depth indicator for agents at level 3 or 4
+                if (agentDepth >= 3) {
+                    const depthIndicator = document.createElement('div');
+                    depthIndicator.style.position = 'absolute';
+                    depthIndicator.style.top = '-16px';
+                    depthIndicator.style.right = '-10px';
+                    depthIndicator.style.backgroundColor = agentDepth >= 4 ? '#dc3545' : '#ffc107';
+                    depthIndicator.style.color = 'white';
+                    depthIndicator.style.borderRadius = '50%';
+                    depthIndicator.style.width = '16px';
+                    depthIndicator.style.height = '16px';
+                    depthIndicator.style.fontSize = '10px';
+                    depthIndicator.style.display = 'flex';
+                    depthIndicator.style.alignItems = 'center';
+                    depthIndicator.style.justifyContent = 'center';
+                    depthIndicator.style.fontWeight = 'bold';
+                    depthIndicator.textContent = agentDepth;
+                    
+                    // Add a tooltip explaining the depth
+                    depthIndicator.title = agentDepth >= 4 ? 
+                        "Maximum depth reached - this agent must provide a direct answer" : 
+                        "Near maximum depth - next agent will be at max depth";
+                    
+                    nodeDiv.appendChild(depthIndicator);
+                }
+                
                 // Add status class
                 let statusClass = 'pending';
                 let statusSymbol = '';
@@ -2151,6 +2208,9 @@
                 popover = document.createElement('div');
                 popover.className = 'thinking-popover';
                 
+                // Calculate agent depth
+                const agentDepth = getAgentDepth(agent.id);
+                
                 // Create popover header
                 const header = document.createElement('div');
                 header.className = 'thinking-popover-header';
@@ -2158,6 +2218,27 @@
                 const title = document.createElement('div');
                 title.className = 'thinking-popover-title';
                 title.textContent = agent.name + ' (Live)';
+                
+                // Add depth indicator if needed
+                if (agentDepth > 0) {
+                    const depthIndicator = document.createElement('span');
+                    depthIndicator.style.marginLeft = '10px';
+                    depthIndicator.style.fontSize = '0.8rem';
+                    depthIndicator.style.backgroundColor = agentDepth >= 4 ? '#dc3545' : 
+                                                           agentDepth >= 3 ? '#ffc107' : '#6c757d';
+                    depthIndicator.style.color = 'white';
+                    depthIndicator.style.padding = '2px 6px';
+                    depthIndicator.style.borderRadius = '4px';
+                    depthIndicator.textContent = `Depth: ${agentDepth}`;
+                    
+                    if (agentDepth >= 4) {
+                        depthIndicator.title = "Maximum depth reached - this agent must provide a direct answer";
+                    } else if (agentDepth >= 3) {
+                        depthIndicator.title = "Near maximum depth - next agent will be at max depth";
+                    }
+                    
+                    title.appendChild(depthIndicator);
+                }
                 
                 const closeButton = document.createElement('button');
                 closeButton.className = 'thinking-popover-close';
@@ -2202,6 +2283,13 @@
                     </div>
                     <div><strong>Agent ID:</strong> ${agent.id}</div>
                     <div><strong>Parent Agent:</strong> ${agent.parentId ? tree.agents[agent.parentId].name : 'None (Root)'}</div>
+                    <div><strong>Depth Level:</strong> ${agentDepth} ${
+                        agentDepth >= 4 ? 
+                        '<span style="color: #dc3545; font-weight: bold;">(Max Depth - Must Answer Directly)</span>' : 
+                        agentDepth === 3 ? 
+                        '<span style="color: #ffc107;">(Near Max Depth - Next Level is Final)</span>' : 
+                        ''
+                    }</div>
                 `;
                 
                 statusSection.appendChild(statusTitle);
@@ -2560,10 +2648,30 @@
                 // Update tree visualization
                 agentTree.renderTree();
                 
+                // Determine if we should stop due to maximum depth
+                const isMaxDepth = getAgentDepth(agentId) >= 4;
+                
                 // Create a system message that explains the agent's role and deep search tree capability
-                const systemMessage = `You are ${agent.name}, an AI agent in a collaborative tree-based network.
+                let systemMessage = `You are ${agent.name}, an AI agent in a collaborative tree-based network.
 
-When you receive a question, you have three options:
+`;
+
+                // Use a different system message for agents at max depth
+                if (isMaxDepth) {
+                    systemMessage += `IMPORTANT: You have reached the maximum allowed depth in the agent tree (level 4).
+You MUST answer the question directly and are NOT ALLOWED to create any new agents.
+Regardless of the complexity or nature of the question, you must provide your best answer with the knowledge you have.
+
+Output format (YOU MUST USE THIS FORMAT):
+{
+    "thinking": "Your detailed reasoning about the question",
+    "action": "answer",
+    "answer": "Your comprehensive answer to the question"
+}`;
+                    
+                    logger.warning(`Agent ${agent.name} (ID: ${agentId}) has reached maximum depth - restricting to direct answers only`);
+                } else {
+                    systemMessage += `When you receive a question, you have three options:
 1. Answer the question directly if you can provide a high-quality response
 2. Create a SINGLE new specialized agent if one specific expert would be better
 3. Create MULTIPLE sub-agents (2-3) to tackle different aspects of the question in parallel
@@ -2596,14 +2704,10 @@ Output format (for creating multiple agents):
         {"name": "Second specialized agent name", "focus": "What this agent should focus on"},
         {"name": "Third specialized agent name", "focus": "What this agent should focus on (optional)"}
     ]
-}
-
-IMPORTANT: Always respond in valid JSON format. The maximum depth of the agent tree is 4 levels.`;
+}`;
+                }
                 
-                // Determine if we should stop due to maximum depth
-                const isMaxDepth = getAgentDepth(agentId) >= 4;
-                const maxDepthMessage = isMaxDepth ? 
-                    "\n\nNOTE: You have reached the maximum tree depth. You MUST choose 'answer' as your action." : "";
+                systemMessage += `\n\nIMPORTANT: Always respond in valid JSON format.`;
                 
                 logger.info('Preparing API request to OpenAI');
 
@@ -2620,7 +2724,7 @@ IMPORTANT: Always respond in valid JSON format. The maximum depth of the agent t
                             body: JSON.stringify({
                                 model: model,
                                 messages: [
-                                    { role: 'system', content: systemMessage + maxDepthMessage },
+                                    { role: 'system', content: systemMessage },
                                     { role: 'user', content: prompt }
                                 ],
                                 temperature: 0.7
@@ -2666,7 +2770,7 @@ IMPORTANT: Always respond in valid JSON format. The maximum depth of the agent t
                         const agentResponse = responseData.choices[0].message.content.trim();
 
                         // Record the token usage
-                        const fullPrompt = systemMessage + maxDepthMessage + prompt;
+                        const fullPrompt = systemMessage + prompt;
                         rateLimiter.recordUsage(model, fullPrompt, agentResponse);
                         
                         // Update status with rate limit info
@@ -2712,13 +2816,29 @@ IMPORTANT: Always respond in valid JSON format. The maximum depth of the agent t
                     // Update the agent's thinking
                     agentTree.updateAgentThinking(agentId, parsedResponse.thinking);
                     
-                    // Force answer if at max depth
+                    // Force answer if at max depth but agent still tries to create more agents
                     if (isMaxDepth && parsedResponse.action !== 'answer') {
-                        logger.warning('Agent at max depth tried to create more agents. Forcing answer.');
+                        logger.error(`Agent ${agent.name} at max depth violated constraints by attempting to ${parsedResponse.action} instead of answering directly.`);
+                        addActivity(`${agent.name} was required to answer directly (max depth reached)`);
+                        
+                        // Create a more informative forced answer
                         parsedResponse.action = 'answer';
                         if (!parsedResponse.answer) {
-                            parsedResponse.answer = "I've reached the maximum depth of analysis and must provide an answer: " + 
-                                parsedResponse.thinking;
+                            parsedResponse.answer = `[Note: This response was auto-generated because the agent reached maximum tree depth]\n\n${parsedResponse.thinking}\n\nBased on the above analysis, here's the answer to your question:\n`;
+                            
+                            // If it was trying to forward, mention who it wanted to forward to
+                            if (parsedResponse.newAgent) {
+                                parsedResponse.answer += `\nThe agent wanted to consult with a "${parsedResponse.newAgent}" specialist, but reached the maximum depth limit.`;
+                            }
+                            
+                            // If it was trying to branch, mention the specialists it wanted to create
+                            if (parsedResponse.subAgents && parsedResponse.subAgents.length > 0) {
+                                parsedResponse.answer += `\nThe agent wanted to split this question into ${parsedResponse.subAgents.length} parts for specialized analysis by:\n`;
+                                parsedResponse.subAgents.forEach(subAgent => {
+                                    parsedResponse.answer += `- ${subAgent.name}: ${subAgent.focus}\n`;
+                                });
+                                parsedResponse.answer += `However, this would exceed the maximum depth limit.`;
+                            }
                         }
                     }
                     
@@ -2856,10 +2976,24 @@ IMPORTANT: Always respond in valid JSON format. The maximum depth of the agent t
                 let currentId = agentId;
                 let currentAgent = agentTree.getAgent(currentId);
                 
+                // For debugging, we'll build a path of agent names
+                const path = [];
+                
                 while (currentAgent && currentAgent.parentId !== null) {
                     depth++;
+                    path.unshift(currentAgent.name);
                     currentId = currentAgent.parentId;
                     currentAgent = agentTree.getAgent(currentId);
+                }
+                
+                // Add the root agent name to the path
+                if (currentAgent) {
+                    path.unshift(currentAgent.name);
+                }
+                
+                // Debug log path only for deeper agents
+                if (depth >= 3) {
+                    logger.info(`Agent path (depth ${depth}): ${path.join(' → ')}`);
                 }
                 
                 return depth;
