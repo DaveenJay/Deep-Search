@@ -11,38 +11,133 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
             background-color: #f8f9fa;
             color: #1d1d1f;
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        .app-layout {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .sidebar {
+            width: 350px;
+            height: 100vh;
+            background-color: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .sidebar-header {
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 20px;
+        }
+        
+        .sidebar-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #28a745;
+            margin: 0 0 5px 0;
+        }
+        
+        .sidebar-subtitle {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin: 0;
+        }
+        
+        .main-content {
+            flex: 1;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
         }
         
         .container {
-            max-width: 900px;
-            margin: 40px auto;
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .result-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+        
+        .tree-container {
+            flex: 1;
+            overflow: auto;
+            margin-top: 20px;
+            background-color: white;
+            border-radius: 8px;
             padding: 20px;
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 600;
-            color: #28a745;
-            margin-bottom: 10px;
-        }
-        
-        .subtitle {
-            font-size: 1.2rem;
-            color: #6c757d;
-            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
         
         .search-container {
             background-color: white;
             border-radius: 10px;
-            padding: 25px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        /* Status indicator for the main content */
+        .status-bar {
+            background-color: #343a40;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        
+        .status-bar .status-text {
+            flex: 1;
+        }
+        
+        .status-bar .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+            background-color: #28a745;
+            box-shadow: 0 0 0 rgba(40, 167, 69, 0.4);
+            animation: pulse 2s infinite;
+        }
+        
+        .status-bar.inactive .status-indicator {
+            background-color: #6c757d;
+            animation: none;
+        }
+        
+        /* Make the thinking detail panel fit better with the new layout */
+        #thinking-detail {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            width: 500px;
+            max-width: 40vw;
+            height: calc(100vh - 100px);
+            z-index: 100;
         }
         
         textarea {
@@ -124,8 +219,15 @@
         }
         
         .result-content {
-            white-space: pre-wrap;
             line-height: 1.6;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f0f8ff; /* Light blue background */
+            border-radius: 5px;
+            border: 1px solid #007bff;
+            min-height: 100px; /* Ensure there's always visible space */
+            white-space: pre-wrap; /* Preserve whitespace and line breaks */
+            font-size: 1.1rem; /* Slightly larger text */
         }
         
         .thinking-path {
@@ -443,49 +545,49 @@
         .tree-level {
             display: flex;
             justify-content: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             position: relative;
         }
         
         .tree-node {
             background-color: white;
             border: 2px solid #28a745;
-            border-radius: 8px;
-            padding: 10px;
-            margin: 0 10px;
-            min-width: 150px;
-            max-width: 180px;
+            border-radius: 6px;
+            padding: 8px;
+            margin: 0 8px;
+            min-width: 140px;
+            max-width: 170px;
             position: relative;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         
         .tree-node:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
         
         .tree-node.selected {
             border-color: #007bff;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
         }
         
         .tree-node-title {
             font-weight: 600;
             color: #28a745;
-            margin-bottom: 8px;
-            font-size: 1rem;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
         
         .tree-node-content {
-            font-size: 0.9rem;
-            max-height: 100px;
+            font-size: 0.85rem;
+            max-height: 80px;
             overflow-y: auto;
-            padding: 8px;
+            padding: 6px;
             background-color: #f8f9fa;
             border-radius: 4px;
             color: #495057;
@@ -839,21 +941,829 @@
             background-color: #28a745;
             transition: width 0.5s ease;
         }
+        
+        /* Model badges */
+        .model-badge {
+            font-size: 0.7rem;
+            padding: 2px 5px;
+            border-radius: 4px;
+            margin-left: 5px;
+            background-color: #e9ecef;
+            color: #495057;
+            display: inline-block;
+        }
+        
+        .model-high {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .model-medium {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .model-low {
+            background-color: #f8f9fa;
+            color: #6c757d;
+        }
+        
+        .node-name-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        /* Add CSS for the model info in thinking display */
+        .thinking-header {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+        
+        .thinking-model-info {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        
+        /* Add visual styles for continuations */
+        .status-continued {
+            background-color: #17a2b8;
+            border-color: #0c839b;
+        }
+        
+        .continuation-link {
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            width: 15px;
+            height: 15px;
+            background-color: #17a2b8;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .continuation-badge {
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            width: 15px;
+            height: 15px;
+            background-color: #17a2b8;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .continuation-info {
+            margin-top: 5px;
+            font-size: 0.85rem;
+            color: #17a2b8;
+            padding: 4px 8px;
+            background-color: rgba(23, 162, 184, 0.1);
+            border-radius: 4px;
+        }
+
+        .continuation-label {
+            font-weight: bold;
+        }
+
+        .continuation-info a {
+            color: #138496;
+            text-decoration: none;
+        }
+
+        .continuation-info a:hover {
+            text-decoration: underline;
+        }
+
+        /* Thinking detail panel styles */
+        #thinking-detail {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            width: 500px;
+            max-width: 40vw;
+            height: calc(100vh - 100px);
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .thinking-content {
+            margin-top: 15px;
+            line-height: 1.6;
+        }
+
+        /* Tree visualization styles */
+        .tree-view {
+            margin-top: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+            min-height: 300px;
+            overflow: auto;
+        }
+
+        .tree-map {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            margin-top: 20px;
+        }
+
+        .tree-level {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            position: relative;
+        }
+
+        .node {
+            width: 180px;
+            padding: 12px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 4px solid #e9ecef;
+        }
+
+        .node.active {
+            box-shadow: 0 0 0 2px #28a745, 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .node:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .status-pending {
+            border-left-color: #6c757d;
+        }
+
+        .status-processing {
+            border-left-color: #fd7e14;
+        }
+
+        .status-completed {
+            border-left-color: #28a745;
+        }
+
+        .status-forwarded {
+            border-left-color: #007bff;
+        }
+
+        .status-continued {
+            border-left-color: #17a2b8;
+        }
+
+        /* Loading spinner */
+        .loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(2px);
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(243, 243, 243, 0.3);
+            border-top: 4px solid #28a745;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        
+        .loading-text {
+            color: #333;
+            font-size: 16px;
+            font-weight: 500;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 8px 16px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Legend styles */
+        .tree-legend {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .status-badge {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .status-badge.pending {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .status-badge.processing {
+            background-color: #fd7e14;
+            color: white;
+        }
+
+        .status-badge.completed {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .status-badge.forwarded {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .status-badge.continued {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        /* Result container styles */
+        .result-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .result-heading {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #28a745;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .result-content {
+            line-height: 1.6;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f0f8ff; /* Light blue background */
+            border-radius: 5px;
+            border: 1px solid #007bff;
+            min-height: 100px; /* Ensure there's always visible space */
+            white-space: pre-wrap; /* Preserve whitespace and line breaks */
+            font-size: 1.1rem; /* Slightly larger text */
+        }
+
+        .thinking-path {
+            margin-top: 30px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .thinking-path-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+
+        /* Make textarea and inputs better */
+        textarea, input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        textarea:focus, input:focus, select:focus {
+            outline: none;
+            border-color: #28a745;
+            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.25);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            background-color: white;
+        }
+
+        button {
+            padding: 10px 16px;
+            font-size: 1rem;
+            font-weight: 500;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+            .app-layout {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: none;
+                overflow: visible;
+            }
+            
+            .main-content {
+                height: auto;
+                min-height: 60vh;
+            }
+            
+            #thinking-detail {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                left: 20px;
+                width: auto;
+                max-width: calc(100% - 40px);
+                height: calc(100vh - 40px);
+            }
+        }
+
+        /* Empty state for tree view */
+        .tree-view:empty::before {
+            content: "Start a search to see agent collaboration in action";
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            color: #6c757d;
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+
+        /* Improved tree connector styles */
+        .tree-connector-container {
+            z-index: 0;
+        }
+
+        path.connector {
+            stroke: #ced4da;
+            stroke-width: 2;
+            fill: none;
+            stroke-dasharray: 4 2;
+        }
+
+        path.connector.active {
+            stroke: #28a745;
+            stroke-dasharray: none;
+        }
+
+        /* Make the thinking detail panel look better */
+        #thinking-detail {
+            display: none;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .thinking-close-btn:hover {
+            color: #dc3545;
+        }
+
+        /* Bot thinking display in results area */
+        .bot-thinking {
+            margin-bottom: 20px;
+            border-left: 3px solid #e9ecef;
+            padding-left: 15px;
+        }
+
+        .bot-name {
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+
+        /* Fix spacing issues */
+        .api-key-input, .model-selector {
+            margin-bottom: 15px;
+        }
+
+        textarea {
+            margin-bottom: 10px;
+        }
+
+        /* Create a settings panel that overlays on the screen */
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .settings-content {
+            background-color: white;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            overflow-y: auto;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .settings-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #333;
+        }
+        
+        .settings-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .settings-close:hover {
+            color: #333;
+        }
+        
+        .settings-section {
+            margin-bottom: 20px;
+        }
+        
+        .settings-section h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            color: #444;
+        }
+        
+        /* Settings button in sidebar */
+        .settings-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+            padding: 8px 12px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            color: #495057;
+            font-weight: 500;
+        }
+        
+        .settings-button:hover {
+            background-color: #e9ecef;
+        }
+        
+        .settings-button i {
+            margin-right: 8px;
+        }
+
+        /* Segmented Picker Styles */
+        .view-selector {
+            display: flex;
+            justify-content: center;
+            margin: 15px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #dee2e6;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        
+        .view-selector-option {
+            padding: 12px 30px;
+            cursor: pointer;
+            background-color: #f8f9fa;
+            border: none;
+            font-weight: 500;
+            color: #495057;
+            transition: all 0.3s ease;
+            position: relative;
+            font-size: 1.1rem;
+            outline: none;
+        }
+        
+        .view-selector-option:first-child {
+            border-radius: 7px 0 0 7px;
+        }
+        
+        .view-selector-option:last-child {
+            border-radius: 0 7px 7px 0;
+        }
+        
+        .view-selector-option.active {
+            background-color: #007bff;
+            color: white;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+            transform: scale(1.05);
+            z-index: 2;
+        }
+        
+        .view-selector-option:hover:not(.active) {
+            background-color: #e9ecef;
+            transform: translateY(-2px);
+        }
+        
+        .view-selector-option:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: transparent;
+            transition: background-color 0.3s ease;
+        }
+        
+        .view-selector-option.active:after {
+            background-color: #28a745;
+        }
+        
+        /* Notification dot for the answer tab */
+        .view-selector-option .notification-dot {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 8px;
+            height: 8px;
+            background-color: #dc3545;
+            border-radius: 50%;
+            display: none;
+        }
+        
+        .view-selector-option .notification-dot.visible {
+            display: block;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.8); opacity: 0.8; }
+        }
+        
+        /* View Container Styles */
+        .view-container {
+            display: none; /* Start hidden by default */
+            height: calc(100% - 70px); /* Adjust height to account for the selector */
+            width: 100%;
+            overflow: hidden; /* Prevent scrolling at this level */
+            transition: opacity 0.3s ease; /* Smooth transition between views */
+            opacity: 0;
+        }
+        
+        .view-container.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        /* Tree View Enhancements for more space */
+        .agents-view {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .tree-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: calc(100% - 40px); /* Account for the view header */
+            overflow: hidden; /* Prevent scrolling at container level */
+        }
+        
+        #tree-view {
+            flex: 1;
+            height: calc(100% - 40px); /* Account for the legend */
+            min-height: 400px;
+            overflow: auto;
+            padding: 10px;
+        }
+        
+        .tree-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 6px 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            font-size: 0.85rem;
+        }
+        
+        /* Answer View */
+        .answer-view {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            overflow: auto;
+            padding: 0 20px;
+        }
+        
+        #answer-view.active {
+            display: block !important; /* Force display when active */
+        }
+        
+        /* Force visibility for result container */
+        #result-container {
+            display: block !important; /* Always display */
+            margin-top: 20px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* Banner for answer notification */
+        .answer-ready-banner {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            display: none;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .answer-ready-banner.visible {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .answer-ready-banner button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .answer-ready-banner button:hover {
+            background-color: #218838;
+        }
+        
+        /* View switch hint in answer view */
+        .view-switch-hint {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-left: 4px solid #28a745;
+        }
+        
+        .view-switch-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        
+        .view-switch-button:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .view-switch-button i {
+            margin-right: 8px;
+        }
+        
+        .view-switch-hint span {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Deep Search Thinking Bots</h1>
-            <div class="subtitle">A self-organizing tree of AI agents that collaborate to find answers</div>
-            <div class="social-links" style="margin-top: 10px; font-size: 0.9rem; color: #6c757d;">
+    <div class="app-layout">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">Deep Search Thinking Bots</h1>
+                <div class="sidebar-subtitle">A self-organizing tree of AI agents that collaborate to find answers</div>
+            </div>
+            <div class="social-links" style="margin-top: 10px; font-size: 0.9rem; color: #6c757d; margin-bottom: 20px;">
                 <a href="https://x.com/daveenjay" target="_blank" style="color: #1DA1F2; text-decoration: none;">
-
                    @DaveenJay
                 </a>
             </div>
-        </header>
 
+            <!-- Move input elements to sidebar -->
         <div class="search-container">
             <div class="api-key-input">
                 <label for="api-key">OpenAI API Key:</label>
@@ -869,184 +1779,171 @@
                 </select>
             </div>
             <textarea id="prompt-input" placeholder="Enter your question or prompt here..."></textarea>
-            <div class="button-container" style="display: flex; justify-content: space-between;">
+                <div class="button-container" style="display: flex; justify-content: space-between; margin-top: 15px;">
                 <button id="search-button">Start Deep Search</button>
                 <button id="clear-storage" style="background-color: #6c757d;">Clear Saved Data</button>
             </div>
         </div>
 
-        <div class="loading">
-            <div class="loading-title">Deep Search In Progress</div>
-            <div class="loading-spinner"></div>
-            
-            <!-- Rate limit status indicator -->
-            <div class="rate-limit-status" style="margin-top: 15px; font-size: 0.9rem; color: #6c757d;">
-                <div id="rate-limit-indicator">API usage: 0%</div>
-                <div class="progress" style="height: 8px; margin-top: 5px; border-radius: 4px; background-color: #e9ecef; overflow: hidden;">
-                    <div id="rate-limit-progress" class="progress-bar" style="width: 0%; height: 100%; background-color: #28a745; transition: width 0.5s ease;"></div>
+            <!-- Rate limit info in sidebar -->
+            <div class="rate-limit-container">
+                <div class="rate-limit-header" style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0 10px;">
+                    <h5 style="font-size: 0.9rem; margin: 0; color: #6c757d;">Model Limits</h5>
+                    <button id="toggle-limit-details" class="toggle-btn" style="background: none; border: none; color: #007bff; font-size: 0.8rem; cursor: pointer; padding: 0;">Show Details</button>
                 </div>
-                <button id="toggle-limit-details" class="log-toggle" style="margin-top: 8px; padding: 4px 8px; font-size: 0.8rem;">Show Details</button>
+                <div id="rate-limit-details" style="display: none;">
+                    <div class="rate-limit-stats" style="display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px;">
+                        <div class="limit-badge" id="limit-tokens-minute" style="background-color: #e9ecef; padding: 3px 6px; border-radius: 4px; font-size: 0.8rem;">TPM: 0</div>
+                        <div class="limit-badge" id="limit-requests-minute" style="background-color: #e9ecef; padding: 3px 6px; border-radius: 4px; font-size: 0.8rem;">RPM: 0</div>
+                        <div class="limit-badge" id="limit-tokens-day" style="background-color: #e9ecef; padding: 3px 6px; border-radius: 4px; font-size: 0.8rem;">TPD: 0</div>
+                        <div class="limit-badge" id="limit-requests-day" style="background-color: #e9ecef; padding: 3px 6px; border-radius: 4px; font-size: 0.8rem;">RPD: 0</div>
             </div>
-            
-            <!-- Detailed token and limits information -->
-            <div id="rate-limit-details" style="display: none; margin-top: 10px; padding: 12px; background-color: #f8f9fa; border-radius: 8px; font-size: 0.85rem;">
-                <h4 style="font-size: 1rem; margin-top: 0; margin-bottom: 10px; color: #495057;">Token & Rate Limit Details</h4>
-                
-                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-                    <div style="flex: 1;">
-                        <h5 style="font-size: 0.9rem; margin-top: 0; margin-bottom: 8px; color: #6c757d;">Current Usage</h5>
-                        <ul style="list-style: none; padding: 0; margin: 0;">
-                            <li id="tokens-this-minute">Tokens (minute): 0</li>
-                            <li id="requests-this-minute">Requests (minute): 0</li>
-                            <li id="tokens-today">Tokens (today): 0</li>
-                            <li id="requests-today">Requests (today): 0</li>
-                        </ul>
+                    <div class="rate-limit-status">
+                        <span>Rate Limit:</span>
+                        <div class="progress" style="flex: 1; margin: 0 10px;">
+                            <div class="progress-bar" id="rate-limit-bar" style="width: 0%"></div>
                     </div>
-                    <div style="flex: 1;">
-                        <h5 style="font-size: 0.9rem; margin-top: 0; margin-bottom: 8px; color: #6c757d;">Model Limits</h5>
-                        <ul style="list-style: none; padding: 0; margin: 0;">
-                            <li id="limit-tokens-minute">TPM: 0</li>
-                            <li id="limit-requests-minute">RPM: 0</li>
-                            <li id="limit-tokens-day">TPD: 0</li>
-                            <li id="limit-requests-day">RPD: 0</li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <div style="margin-top: 10px;">
-                    <h5 style="font-size: 0.9rem; margin-top: 0; margin-bottom: 8px; color: #6c757d;">Quota Status</h5>
-                    <div class="limit-bars">
-                        <div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
-                                <span>Tokens/min</span>
-                                <span id="tpm-percent">0%</span>
-                            </div>
-                            <div class="progress" style="height: 6px; margin-bottom: 8px;">
-                                <div id="tpm-progress" class="progress-bar" style="width: 0%;"></div>
-                            </div>
-                        </div>
-                        <div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
-                                <span>Requests/min</span>
-                                <span id="rpm-percent">0%</span>
-                            </div>
-                            <div class="progress" style="height: 6px; margin-bottom: 8px;">
-                                <div id="rpm-progress" class="progress-bar" style="width: 0%;"></div>
-                            </div>
-                        </div>
-                        <div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
-                                <span>Tokens/day</span>
-                                <span id="tpd-percent">0%</span>
-                            </div>
-                            <div class="progress" style="height: 6px; margin-bottom: 8px;">
-                                <div id="tpd-progress" class="progress-bar" style="width: 0%;"></div>
-                            </div>
-                        </div>
-                        <div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
-                                <span>Requests/day</span>
-                                <span id="rpd-percent">0%</span>
-                            </div>
-                            <div class="progress" style="height: 6px;">
-                                <div id="rpd-progress" class="progress-bar" style="width: 0%;"></div>
-                            </div>
+                        <span id="rate-limit-percent">0%</span>
                         </div>
                     </div>
                 </div>
                 
-                <div style="margin-top: 12px; display: flex; justify-content: space-between; font-size: 0.8rem; color: #6c757d;">
-                    <div>Next minute reset: <span id="minute-reset-time">60s</span></div>
-                    <div>Queue length: <span id="queue-length">0</span></div>
+                <!-- Settings button at the bottom of sidebar -->
+                <div class="settings-button" id="open-settings">
+                    <i class="fas fa-cog"></i> Settings
+                </div>
+                </div>
+                
+        <div class="main-content">
+            <!-- Loading indicator -->
+            <div class="loading" style="display: none;">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Processing your query...</div>
+            </div>
+                
+            <!-- Status bar for the main area -->
+            <div class="status-bar inactive" id="status-bar">
+                <div class="status-indicator"></div>
+                <div class="status-text" id="status-text">Ready for input</div>
+            </div>
+            
+            <!-- Segmented Picker for View Switching -->
+            <div class="view-selector">
+                <button class="view-selector-option active" id="agents-tab">
+                    <i class="fas fa-network-wired"></i> Agent Map
+                </button>
+                <button class="view-selector-option" id="answer-tab">
+                    <i class="fas fa-file-alt"></i> Final Answer
+                    <span class="notification-dot" id="answer-notification"></span>
+                </button>
+            </div>
+            
+            <!-- Agents View Container -->
+            <div class="view-container active" id="agents-view">
+                <div class="agents-view">
+                    <!-- Title is now above the tree container -->
+                    <div class="view-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                        <div>
+                            <h4 style="margin: 0;">Agent Collaboration</h4>
+                            <small style="color: #6c757d;">Visualizing how agents work together</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Banner that appears when an answer is ready -->
+                    <div class="answer-ready-banner" id="answer-ready-banner">
+                        <span>🎉 Your answer is ready! View the final result.</span>
+                        <button id="view-answer-btn">View Answer</button>
+                    </div>
+                    
+                    <!-- Main working area for agent visualization -->
+                    <div class="tree-container" id="tree-container">
+                        <div class="tree-legend" style="margin-bottom: 8px;">
+                            <div class="legend-item">
+                                <div class="status-badge pending">⌛</div>
+                                <span>Pending</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="status-badge processing">🔄</div>
+                                <span>Processing</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="status-badge completed">✅</div>
+                                <span>Completed</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="status-badge forwarded">→</div>
+                                <span>Forwarded</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="status-badge continued">⟳</div>
+                                <span>Continued</span>
+                            </div>
+                        </div>
+                        
+                        <div id="tree-view" class="tree-view">
+                            <!-- Tree will be rendered here -->
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <div class="live-visualization">
-                <div class="thinking-indicator" id="current-thinking">
-                    <div class="thinking-agent">Initializing...</div>
-                    <div class="thinking-dots"></div>
-                </div>
-                
-                <div class="tree-legend" style="margin-top: 15px; margin-bottom: 15px;">
-                    <div class="legend-item">
-                        <div class="live-node pending" style="width: 20px; height: 20px; margin: 0 5px 0 0;"></div>
-                        <span>Pending</span>
+            <!-- Answer View Container -->
+            <div class="view-container" id="answer-view">
+                <div class="answer-view">
+                    <!-- Final answer display -->
+                    <div class="result-container" id="result-container">
+                        <div class="result-heading">Final Answer</div>
+                        <div class="result-content" id="final-answer"></div>
+                        
+                        <div class="thinking-path">
+                            <div class="thinking-path-title">Agent Thinking Path</div>
+                            <div id="thinking-path-content"></div>
+                        </div>
+                        
+                        <!-- Button to switch back to Agent Map view -->
+                        <div class="view-switch-hint">
+                            <button id="view-agents-btn" class="view-switch-button">
+                                <i class="fas fa-network-wired"></i> View Agent Map
+                            </button>
+                            <span>Click to see how agents collaborated to find this answer</span>
+                        </div>
                     </div>
-                    <div class="legend-item">
-                        <div class="live-node processing" style="width: 20px; height: 20px; margin: 0 5px 0 0;"></div>
-                        <span>Processing</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="live-node completed" style="width: 20px; height: 20px; margin: 0 5px 0 0;"></div>
-                        <span>Completed</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="live-node forwarded" style="width: 20px; height: 20px; margin: 0 5px 0 0;"></div>
-                        <span>Forwarded</span>
-                    </div>
-                </div>
-                
-                <div class="live-tree" id="live-tree">
-                    <!-- Live tree visualization will be rendered here -->
-                </div>
-                
-                <div class="live-status" id="live-status">
-                    Setting up agent network...
-                </div>
-                
-                <div class="activity-log" id="activity-log">
-                    <div class="activity-entry">Starting deep search process...</div>
                 </div>
             </div>
-        </div>
-
-        <div class="result-container" id="result-container">
-            <div class="result-heading">Final Answer</div>
-            <div class="result-content" id="final-answer"></div>
-            
-            <div class="thinking-path">
-                <div class="thinking-path-title">Agent Thinking Path</div>
-                <div id="thinking-path-content"></div>
-            </div>
-            
-            <div class="tree-container" id="tree-container">
-                <h3>Search Tree Visualization</h3>
-                <p class="subtitle">See how agents collaborate to solve your question</p>
-                
-                <div class="tree-legend">
-                    <div class="legend-item">
-                        <div class="status-badge pending">⌛</div>
-                        <span>Pending</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="status-badge processing">🔄</div>
-                        <span>Processing</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="status-badge completed">✅</div>
-                        <span>Completed</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="status-badge forwarded">→</div>
-                        <span>Forwarded</span>
-                    </div>
-                </div>
-                
-                <div id="tree-view" class="tree-view">
-                    <!-- Tree will be rendered here -->
-                </div>
-            </div>
-        </div>
-        
-        <!-- Log View Section -->
-        <div class="log-container" id="log-container">
-            <div class="log-controls">
-                <button class="log-toggle" id="toggle-log">Hide Logs</button>
-                <button class="log-toggle log-clear" id="clear-logs">Clear Logs</button>
-            </div>
-            <div id="log-entries"></div>
         </div>
     </div>
+
+    <div id="thinking-detail" style="display: none;">
+        <!-- Detailed thinking content will be dynamically added here -->
+    </div>
+
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settings-panel">
+        <div class="settings-content">
+            <div class="settings-header">
+                <h2>Settings & Logs</h2>
+                <button class="settings-close" id="close-settings">&times;</button>
+            </div>
+            
+            <div class="settings-section">
+                <h3>API Settings</h3>
+                <p>Configure your API key and default model preferences here.</p>
+                <!-- API settings could go here in the future -->
+            </div>
+            
+            <div class="settings-section">
+                <h3>Activity Logs</h3>
+                <div class="log-container" id="log-container">
+                    <div class="log-controls">
+                        <button class="log-toggle log-clear" id="clear-logs">Clear Logs</button>
+                    </div>
+                    <div id="log-entries" style="max-height: 300px; overflow-y: auto; margin-top: 10px; border: 1px solid #eee; padding: 10px; border-radius: 4px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
 
     <script>
         // Rate Limiter for managing API limits
@@ -1088,6 +1985,9 @@
                 
                 // Initialize usage tracking
                 this.resetUsage();
+                
+                // Initialize usage history
+                this.usageHistory = [];
                 
                 // Initialize request queue
                 this.requestQueue = [];
@@ -1178,6 +2078,24 @@
                 this.usage.tokensThisMinute += totalTokens;
                 this.usage.requestsToday++;
                 this.usage.tokensToday += totalTokens;
+                
+                // Add to usage history
+                if (!this.usageHistory) {
+                    this.usageHistory = [];
+                }
+                
+                this.usageHistory.push({
+                    timestamp: Date.now(),
+                    model: modelName,
+                    promptTokens,
+                    responseTokens,
+                    totalTokens
+                });
+                
+                // Limit history size to prevent memory issues
+                if (this.usageHistory.length > 1000) {
+                    this.usageHistory = this.usageHistory.slice(-1000);
+                }
                 
                 return {
                     promptTokens,
@@ -1308,10 +2226,45 @@
             
             // Get current usage statistics
             getUsageStats() {
-                this.updateTimers();
+                const now = Date.now();
+                const currentMinute = Math.floor(now / 60000);
+                const currentDay = Math.floor(now / 86400000);
+                
+                // Calculate tokens used in the current minute
+                let tokensThisMinute = 0;
+                let requestsThisMinute = 0;
+                let tokensToday = 0;
+                let requestsToday = 0;
+                
+                // Ensure usageHistory exists before trying to iterate over it
+                if (this.usageHistory && Array.isArray(this.usageHistory)) {
+                    // Calculate tokens used in the current minute
+                    for (const record of this.usageHistory) {
+                        if (Math.floor(record.timestamp / 60000) === currentMinute) {
+                            tokensThisMinute += record.totalTokens;
+                            requestsThisMinute++;
+                        }
+                        
+                        // Calculate tokens used in the current day
+                        if (Math.floor(record.timestamp / 86400000) === currentDay) {
+                            tokensToday += record.totalTokens;
+                            requestsToday++;
+                        }
+                    }
+                } else {
+                    // If usageHistory doesn't exist, initialize it
+                    this.usageHistory = [];
+                }
+                
+                // Add queue length
+                const queueLength = this.requestQueue ? this.requestQueue.length : 0;
+                
                 return {
-                    ...this.usage,
-                    queueLength: this.requestQueue.length
+                    tokensThisMinute,
+                    requestsThisMinute,
+                    tokensToday,
+                    requestsToday,
+                    queueLength
                 };
             }
         }
@@ -1331,10 +2284,90 @@
             const loadingIndicator = document.querySelector('.loading');
             const logContainer = document.getElementById('log-container');
             const logEntries = document.getElementById('log-entries');
-            const toggleLogButton = document.getElementById('toggle-log');
             const clearLogsButton = document.getElementById('clear-logs');
             const toggleLimitDetailsButton = document.getElementById('toggle-limit-details');
             const rateLimitDetails = document.getElementById('rate-limit-details');
+            
+            // View switching elements
+            const agentsTab = document.getElementById('agents-tab');
+            const answerTab = document.getElementById('answer-tab');
+            const agentsView = document.getElementById('agents-view');
+            const answerView = document.getElementById('answer-view');
+            const answerNotification = document.getElementById('answer-notification');
+            const answerReadyBanner = document.getElementById('answer-ready-banner');
+            const viewAnswerBtn = document.getElementById('view-answer-btn');
+            const viewAgentsBtn = document.getElementById('view-agents-btn');
+            
+            // Settings panel elements
+            const openSettingsButton = document.getElementById('open-settings');
+            const settingsPanel = document.getElementById('settings-panel');
+            const closeSettingsButton = document.getElementById('close-settings');
+            
+            // Function to switch between views
+            function switchView(viewId) {
+                console.log(`Switching view to: ${viewId}`);
+                
+                // Hide all views
+                const viewContainers = document.querySelectorAll('.view-container');
+                viewContainers.forEach(container => {
+                    container.classList.remove('active');
+                    container.style.display = 'none'; // Explicitly hide all containers
+                });
+                
+                // Deactivate all tabs
+                const tabs = document.querySelectorAll('.view-selector-option');
+                tabs.forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                // Show the selected view
+                const selectedView = document.getElementById(viewId);
+                selectedView.classList.add('active');
+                selectedView.style.display = 'block'; // Explicitly show the selected container
+                
+                // Activate the corresponding tab
+                if (viewId === 'agents-view') {
+                    agentsTab.classList.add('active');
+                    
+                    // If answer is ready, show the banner in the agents view
+                    if (document.getElementById('final-answer').textContent.trim() !== '') {
+                        answerReadyBanner.classList.add('visible');
+                    }
+                } else if (viewId === 'answer-view') {
+                    answerTab.classList.add('active');
+                    // Hide notification when viewing the answer
+                    answerNotification.classList.remove('visible');
+                }
+                
+                console.log(`View switched to: ${viewId}, now visible:`, selectedView.style.display);
+            }
+            
+            // Event listeners for view switching
+            agentsTab.addEventListener('click', () => switchView('agents-view'));
+            answerTab.addEventListener('click', () => switchView('answer-view'));
+            viewAnswerBtn.addEventListener('click', () => switchView('answer-view'));
+            viewAgentsBtn.addEventListener('click', () => switchView('agents-view'));
+            
+            // Function to open settings panel
+            function openSettings() {
+                settingsPanel.style.display = 'flex';
+            }
+            
+            // Function to close settings panel
+            function closeSettings() {
+                settingsPanel.style.display = 'none';
+            }
+            
+            // Event listeners for settings panel
+            openSettingsButton.addEventListener('click', openSettings);
+            closeSettingsButton.addEventListener('click', closeSettings);
+            
+            // Close settings when clicking outside the content
+            settingsPanel.addEventListener('click', function(event) {
+                if (event.target === settingsPanel) {
+                    closeSettings();
+                }
+            });
             
             // LocalStorage keys
             const API_KEY_STORAGE_KEY = 'deepSearch_apiKey';
@@ -1465,17 +2498,8 @@
                 }
             };
             
-            // Toggle log visibility
-            toggleLogButton.addEventListener('click', function() {
-                const logEntries = document.getElementById('log-entries');
-                if (logEntries.style.display === 'none') {
-                    logEntries.style.display = 'block';
-                    toggleLogButton.textContent = 'Hide Logs';
-                } else {
-                    logEntries.style.display = 'none';
-                    toggleLogButton.textContent = 'Show Logs';
-                }
-            });
+            // Log visibility is now controlled via the settings panel
+            // The toggle log button has been removed
             
             // Toggle rate limit details visibility
             toggleLimitDetailsButton.addEventListener('click', function() {
@@ -1490,7 +2514,8 @@
             
             // Clear logs
             clearLogsButton.addEventListener('click', function() {
-                logger.clear();
+                logEntries.innerHTML = '';
+                logger.info('Logs cleared');
             });
             
             // Initial log
@@ -1511,14 +2536,17 @@
             
             // Agent tree for recording the thinking structure
             class Agent {
-                constructor(id, name, parentId = null) {
+                constructor(id, name, parentId = null, continuationFromId = null) {
                     this.id = id;
                     this.name = name;
                     this.parentId = parentId;
                     this.childrenIds = [];
-                    this.thinking = '';
+                    this.thinking = "";
+                    this.status = "created"; // created, processing, completed, forwarded, etc.
                     this.answer = null;
-                    this.status = 'pending'; // pending, processing, completed, forwarded
+                    this.model = null; // Track which model was used by this agent
+                    this.continuationFromId = continuationFromId; // Track if this agent is a continuation from another agent
+                    this.continuationToId = null; // Track if this agent continues to another agent
                 }
             }
             
@@ -1553,10 +2581,24 @@
                     const agent = new Agent(id, name, parentId);
                     this.agents[id] = agent;
                     
-                    // Add to parent's children
+                    // Update the parent's children list
                     const parent = this.agents[parentId];
                     if (parent) {
                         parent.childrenIds.push(id);
+                    }
+                    
+                    return id;
+                }
+                
+                createContinuationAgent(originalAgentId, name) {
+                    const id = this.nextId++;
+                    const agent = new Agent(id, name, null, originalAgentId); // No parent, but track the original agent
+                    this.agents[id] = agent;
+                    
+                    // Mark the original agent as having a continuation
+                    const originalAgent = this.agents[originalAgentId];
+                    if (originalAgent) {
+                        originalAgent.continuationToId = id;
                     }
                     
                     return id;
@@ -1673,52 +2715,110 @@
                         const agentsInLevel = levelMap[level].sort((a, b) => a.id - b.id);
                         
                         for (const agent of agentsInLevel) {
+                            // Create a visual display for each node - only create this once
                             const nodeDiv = document.createElement('div');
-                            nodeDiv.className = 'tree-node';
+                            nodeDiv.className = 'node';
                             nodeDiv.dataset.agentId = agent.id;
                             
+                            // Add position relative for absolute positioning of indicators
+                            nodeDiv.style.position = 'relative';
+                            
+                            // Highlight the final agent or selected agent
                             if (agent.id === this.finalAgentId || agent.id === this.selectedAgentId) {
-                                nodeDiv.classList.add('selected');
+                                nodeDiv.classList.add('active');
                             }
                             
-                            // Status badge
-                            let statusIcon = '⌛';
-                            let statusClass = 'pending';
-                            
+                            // Add status indicator
+                            let statusClass = 'status-pending';
                             switch (agent.status) {
                                 case 'processing':
-                                    statusIcon = '🔄';
-                                    statusClass = 'processing';
+                                    statusClass = 'status-processing';
                                     break;
                                 case 'completed':
-                                    statusIcon = '✅';
-                                    statusClass = 'completed';
+                                    statusClass = 'status-completed';
                                     break;
                                 case 'forwarded':
-                                    statusIcon = '→';
-                                    statusClass = 'forwarded';
+                                case 'delegated':
+                                case 'branched':
+                                    statusClass = 'status-forwarded';
+                                    break;
+                                case 'continued':
+                                    statusClass = 'status-continued';
                                     break;
                             }
+                            nodeDiv.classList.add(statusClass);
                             
-                            const titleDiv = document.createElement('div');
-                            titleDiv.className = 'tree-node-title';
+                            // Add continuation indicators if needed
+                            if (agent.continuationToId) {
+                                const continuationLink = document.createElement('div');
+                                continuationLink.className = 'continuation-link';
+                                continuationLink.textContent = '→';
+                                continuationLink.title = 'This agent continues in another branch';
+                                continuationLink.addEventListener('click', (e) => {
+                                    e.stopPropagation(); // Prevent triggering the parent node's click
+                                    this.showDetailedThinking(agent.continuationToId);
+                                });
+                                nodeDiv.appendChild(continuationLink);
+                            }
+                            
+                            if (agent.continuationFromId) {
+                                const continuationBadge = document.createElement('div');
+                                continuationBadge.className = 'continuation-badge';
+                                continuationBadge.textContent = '←';
+                                continuationBadge.title = 'This agent continues from another branch';
+                                continuationBadge.style.position = 'absolute';
+                                continuationBadge.style.top = '-5px';
+                                continuationBadge.style.left = '-5px';
+                                continuationBadge.style.width = '15px';
+                                continuationBadge.style.height = '15px';
+                                continuationBadge.style.backgroundColor = '#17a2b8';
+                                continuationBadge.style.borderRadius = '50%';
+                                continuationBadge.style.display = 'flex';
+                                continuationBadge.style.alignItems = 'center';
+                                continuationBadge.style.justifyContent = 'center';
+                                continuationBadge.style.color = 'white';
+                                continuationBadge.style.fontSize = '10px';
+                                continuationBadge.style.cursor = 'pointer';
+                                continuationBadge.style.zIndex = '10';
+                                continuationBadge.addEventListener('click', (e) => {
+                                    e.stopPropagation(); // Prevent triggering the parent node's click
+                                    this.showDetailedThinking(agent.continuationFromId);
+                                });
+                                nodeDiv.appendChild(continuationBadge);
+                            }
+                            
+                            // Add agent name with model badge
+                            const nameContainer = document.createElement('div');
+                            nameContainer.className = 'node-name-container';
                             
                             const nameSpan = document.createElement('span');
+                            nameSpan.className = 'node-name';
                             nameSpan.textContent = agent.name;
+                            nameContainer.appendChild(nameSpan);
                             
-                            const statusBadge = document.createElement('div');
-                            statusBadge.className = `status-badge ${statusClass}`;
-                            statusBadge.textContent = statusIcon;
+                            // Add model badge if model is known
+                            if (agent.model) {
+                                const modelBadge = document.createElement('span');
+                                modelBadge.className = 'model-badge';
+                                modelBadge.textContent = agent.model.replace('gpt-', '');
+                                
+                                // Color coding for different models
+                                const modelClasses = {
+                                    'gpt-4o': 'model-high',
+                                    'gpt-4': 'model-high',
+                                    'gpt-4-turbo': 'model-medium',
+                                    'gpt-3.5-turbo': 'model-low',
+                                    'gpt-4o-mini': 'model-low'
+                                };
+                                
+                                if (modelClasses[agent.model]) {
+                                    modelBadge.classList.add(modelClasses[agent.model]);
+                                }
+                                
+                                nameContainer.appendChild(modelBadge);
+                            }
                             
-                            titleDiv.appendChild(nameSpan);
-                            titleDiv.appendChild(statusBadge);
-                            
-                            const contentDiv = document.createElement('div');
-                            contentDiv.className = 'tree-node-content';
-                            contentDiv.textContent = agent.thinking.substring(0, 120) + (agent.thinking.length > 120 ? '...' : '');
-                            
-                            nodeDiv.appendChild(titleDiv);
-                            nodeDiv.appendChild(contentDiv);
+                            nodeDiv.appendChild(nameContainer);
                             
                             // Add click handler to show detailed thinking
                             nodeDiv.addEventListener('click', () => {
@@ -1842,172 +2942,106 @@
                     
                     this.selectedAgentId = agentId;
                     
-                    // Remove existing popover if any
-                    let overlay = document.querySelector('.overlay');
-                    let popover = document.querySelector('.thinking-popover');
+                    const thinkingContainer = document.getElementById('thinking-detail');
                     
-                    if (overlay) {
-                        document.body.removeChild(overlay);
-                    }
+                    // Make sure the thinking container is visible
+                    thinkingContainer.style.display = 'block';
                     
-                    if (popover) {
-                        document.body.removeChild(popover);
-                    }
+                    // Create and set the header with agent name and model info
+                    const headerEl = document.createElement('div');
+                    headerEl.className = 'thinking-header';
                     
-                    // Create overlay
-                    overlay = document.createElement('div');
-                    overlay.className = 'overlay';
-                    document.body.appendChild(overlay);
-                    
-                    // Create popover
-                    popover = document.createElement('div');
-                    popover.className = 'thinking-popover';
-                    
-                    // Calculate agent depth
-                    const agentDepth = getAgentDepth(agentId);
-                    
-                    // Create popover header
-                    const header = document.createElement('div');
-                    header.className = 'thinking-popover-header';
-                    
-                    const title = document.createElement('div');
-                    title.className = 'thinking-popover-title';
-                    title.textContent = agent.name;
-                    
-                    // Add depth indicator for all agents
-                    const depthIndicator = document.createElement('span');
-                    depthIndicator.style.marginLeft = '10px';
-                    depthIndicator.style.fontSize = '0.8rem';
-                    depthIndicator.style.backgroundColor = agentDepth >= 4 ? '#dc3545' : 
-                                                          agentDepth >= 3 ? '#ffc107' : '#6c757d';
-                    depthIndicator.style.color = 'white';
-                    depthIndicator.style.padding = '2px 6px';
-                    depthIndicator.style.borderRadius = '4px';
-                    depthIndicator.textContent = `Depth: ${agentDepth}`;
-                    
-                    if (agentDepth >= 4) {
-                        depthIndicator.title = "Maximum depth reached - this agent must provide a direct answer";
-                    } else if (agentDepth >= 3) {
-                        depthIndicator.title = "Near maximum depth - next agent will be at max depth";
-                    }
-                    
-                    title.appendChild(depthIndicator);
-                    
+                    // Add a close button
                     const closeButton = document.createElement('button');
-                    closeButton.className = 'thinking-popover-close';
                     closeButton.innerHTML = '&times;';
-                    closeButton.addEventListener('click', () => {
-                        overlay.style.display = 'none';
-                        popover.style.display = 'none';
-                    });
+                    closeButton.className = 'thinking-close-btn';
+                    closeButton.style.float = 'right';
+                    closeButton.style.background = 'none';
+                    closeButton.style.border = 'none';
+                    closeButton.style.fontSize = '1.5rem';
+                    closeButton.style.cursor = 'pointer';
+                    closeButton.style.padding = '0 10px';
+                    closeButton.onclick = function() {
+                        thinkingContainer.style.display = 'none';
+                    };
+                    headerEl.appendChild(closeButton);
                     
-                    header.appendChild(title);
-                    header.appendChild(closeButton);
+                    const titleEl = document.createElement('h3');
+                    titleEl.textContent = agent.name;
+                    headerEl.appendChild(titleEl);
                     
-                    // Create content section
-                    const content = document.createElement('div');
-                    content.className = 'thinking-popover-content';
-                    
-                    // Create thinking section
-                    const thinkingSection = document.createElement('div');
-                    thinkingSection.className = 'thinking-popover-section';
-                    
-                    const thinkingTitle = document.createElement('div');
-                    thinkingTitle.className = 'thinking-popover-section-title';
-                    thinkingTitle.textContent = 'Thinking Process';
-                    
-                    const thinkingContent = document.createElement('div');
-                    thinkingContent.innerHTML = this.formatThinking(agent.thinking);
-                    
-                    thinkingSection.appendChild(thinkingTitle);
-                    thinkingSection.appendChild(thinkingContent);
-                    content.appendChild(thinkingSection);
-                    
-                    // Add answer if agent has one
-                    if (agent.answer) {
-                        const answerSection = document.createElement('div');
-                        answerSection.className = 'thinking-popover-section';
-                        
-                        const answerTitle = document.createElement('div');
-                        answerTitle.className = 'thinking-popover-section-title';
-                        answerTitle.textContent = 'Final Answer';
-                        
-                        const answerContent = document.createElement('div');
-                        answerContent.innerHTML = agent.answer;
-                        
-                        answerSection.appendChild(answerTitle);
-                        answerSection.appendChild(answerContent);
-                        content.appendChild(answerSection);
+                    // Add model info if available
+                    if (agent.model) {
+                        const modelInfo = document.createElement('div');
+                        modelInfo.className = 'thinking-model-info';
+                        modelInfo.textContent = `Model: ${agent.model}`;
+                        headerEl.appendChild(modelInfo);
                     }
                     
-                    // Add status information
-                    const statusSection = document.createElement('div');
-                    statusSection.className = 'thinking-popover-section';
-                    
-                    const statusTitle = document.createElement('div');
-                    statusTitle.className = 'thinking-popover-section-title';
-                    statusTitle.textContent = 'Agent Status';
-                    
-                    const statusContent = document.createElement('div');
-                    statusContent.innerHTML = `
-                        <div style="margin-bottom: 10px;"><strong>Current Status:</strong> 
-                            <span class="status-badge ${agent.status}">${statusText}</span>
-                        </div>
-                        <div><strong>Agent ID:</strong> ${agent.id}</div>
-                        <div><strong>Parent Agent:</strong> ${agent.parentId ? this.agents[agent.parentId].name : 'None (Root)'}</div>
-                        <div><strong>Depth Level:</strong> ${agentDepth} ${
-                            agentDepth >= 4 ? 
-                            '<span style="color: #dc3545; font-weight: bold;">(Max Depth - Must Answer Directly)</span>' : 
-                            agentDepth === 3 ? 
-                            '<span style="color: #ffc107;">(Near Max Depth - Next Level is Final)</span>' : 
-                            ''
-                        }</div>
-                    `;
-                    
-                    statusSection.appendChild(statusTitle);
-                    statusSection.appendChild(statusContent);
-                    content.appendChild(statusSection);
-                    
-                    // Assemble popover
-                    popover.appendChild(header);
-                    popover.appendChild(content);
-                    
-                    // Add popover to the document
-                    document.body.appendChild(popover);
-                    
-                    // Show overlay and popover
-                    overlay.style.display = 'block';
-                    popover.style.display = 'block';
-                    
-                    // Close popovers with Escape key
-                    const escKeyHandler = function(e) {
-                        if (e.key === 'Escape') {
-                            overlay.style.display = 'none';
-                            popover.style.display = 'none';
-                            document.removeEventListener('keydown', escKeyHandler);
+                    // Add continuation info if relevant
+                    if (agent.continuationFromId || agent.continuationToId) {
+                        const continuationInfo = document.createElement('div');
+                        continuationInfo.className = 'continuation-info';
+                        
+                        if (agent.continuationFromId) {
+                            const fromAgent = this.agents[agent.continuationFromId];
+                            const fromLink = document.createElement('a');
+                            fromLink.href = '#';
+                            fromLink.textContent = fromAgent ? fromAgent.name : `Agent #${agent.continuationFromId}`;
+                            fromLink.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                this.showDetailedThinking(agent.continuationFromId);
+                            });
+                            
+                            continuationInfo.innerHTML = `<span class="continuation-label">Continued from: </span>`;
+                            continuationInfo.appendChild(fromLink);
                         }
-                    };
-                    
-                    document.addEventListener('keydown', escKeyHandler);
-                    
-                    // Close popover when clicking on overlay
-                    overlay.addEventListener('click', function(e) {
-                        if (e.target === overlay) {
-                            overlay.style.display = 'none';
-                            popover.style.display = 'none';
-                            document.removeEventListener('keydown', escKeyHandler);
+                        
+                        if (agent.continuationToId) {
+                            const toAgent = this.agents[agent.continuationToId];
+                            const toLink = document.createElement('a');
+                            toLink.href = '#';
+                            toLink.textContent = toAgent ? toAgent.name : `Agent #${agent.continuationToId}`;
+                            toLink.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                this.showDetailedThinking(agent.continuationToId);
+                            });
+                            
+                            if (continuationInfo.childNodes.length > 0) {
+                                continuationInfo.appendChild(document.createElement('br'));
+                            }
+                            
+                            const labelSpan = document.createElement('span');
+                            labelSpan.className = 'continuation-label';
+                            labelSpan.textContent = 'Continues to: ';
+                            continuationInfo.appendChild(labelSpan);
+                            continuationInfo.appendChild(toLink);
                         }
-                    });
+                        
+                        headerEl.appendChild(continuationInfo);
+                    }
                     
-                    // Update selected state in tree
-                    const nodes = document.querySelectorAll('.tree-node');
-                    nodes.forEach(node => {
-                        if (parseInt(node.dataset.agentId) === agentId) {
-                            node.classList.add('selected');
-                        } else {
-                            node.classList.remove('selected');
-                        }
-                    });
+                    // Create the content element
+                    const contentEl = document.createElement('div');
+                    contentEl.className = 'thinking-content';
+                    
+                    // Format the thinking text with markdown
+                    const formattedThinking = agent.thinking
+                        .replace(/\n/g, '<br>')
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/\*(.*?)\*/g, '<em>$1</em>');
+                    contentEl.innerHTML = formattedThinking;
+                    
+                    // Clear previous content and add new elements
+                    thinkingContainer.innerHTML = '';
+                    thinkingContainer.appendChild(headerEl);
+                    thinkingContainer.appendChild(contentEl);
+                    
+                    // Scroll the thinking pane to the top
+                    thinkingContainer.scrollTop = 0;
+                    
+                    // Update the tree to highlight the selected agent
+                    this.renderTree();
                 }
             }
             
@@ -2022,13 +3056,11 @@
             
             // Add activity to the live visualization log
             function addActivity(message) {
-                if (!activityLog) return;
+                // Log to console
+                console.log(`Activity: ${message}`);
                 
-                const entry = document.createElement('div');
-                entry.className = 'activity-entry';
-                entry.textContent = message;
-                activityLog.appendChild(entry);
-                activityLog.scrollTop = activityLog.scrollHeight;
+                // Add to logs
+                logger.info(message);
             }
             
             // Update the currently thinking agent display
@@ -2043,8 +3075,26 @@
             
             // Update the live status message
             function updateLiveStatus(message) {
-                if (!liveStatus) return;
+                // Update status bar
+                const statusBar = document.getElementById('status-bar');
+                const statusText = document.getElementById('status-text');
+                
+                if (statusText) {
+                    statusText.textContent = message;
+                }
+                
+                // If there's processing happening, make status bar active
+                if (message && message !== 'Ready for input') {
+                    statusBar.classList.remove('inactive');
+                } else {
+                    statusBar.classList.add('inactive');
+                }
+                
+                // For backward compatibility, also update legacy live status if it exists
+                const liveStatus = document.getElementById('live-status');
+                if (liveStatus) {
                 liveStatus.textContent = message;
+                }
             }
             
             // Render the live tree visualization
@@ -2379,218 +3429,309 @@
             
             // Update rate limit indicator
             function updateRateLimitIndicator(limitInfo) {
-                const indicator = document.getElementById('rate-limit-indicator');
-                const progressBar = document.getElementById('rate-limit-progress');
+                try {
+                    if (!limitInfo) return;
                 
-                if (!indicator || !progressBar) return;
-                
+                    // Update progress bar
                 const limitPercent = Math.floor(limitInfo.limitPercent * 100);
-                let color = '#28a745'; // Green
-                
-                if (limitPercent >= 90) {
-                    color = '#dc3545'; // Red
-                } else if (limitPercent >= 70) {
-                    color = '#fd7e14'; // Orange
-                } else if (limitPercent >= 50) {
-                    color = '#ffc107'; // Yellow
+                    const rateBar = document.getElementById('rate-limit-bar');
+                    const percentEl = document.getElementById('rate-limit-percent');
+                    
+                    if (rateBar && percentEl) {
+                        rateBar.style.width = `${limitPercent}%`;
+                        percentEl.textContent = `${limitPercent}%`;
+                        
+                        // Change bar color based on limit percentage
+                        if (limitPercent > 80) {
+                            rateBar.style.backgroundColor = '#dc3545'; // Red
+                        } else if (limitPercent > 60) {
+                            rateBar.style.backgroundColor = '#fd7e14'; // Orange
+                        } else {
+                            rateBar.style.backgroundColor = '#28a745'; // Green
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error updating rate limit indicator:", error);
                 }
-                
-                indicator.textContent = `API usage: ${limitPercent}%`;
-                progressBar.style.width = `${limitPercent}%`;
-                progressBar.style.backgroundColor = color;
             }
             
             // Update detailed token and rate limit information
             function updateRateLimitDetails(model) {
+                try {
+                    if (!model) return;
+                    
                 // Get current model limits
                 const modelLimits = rateLimiter.modelLimits[model] || rateLimiter.modelLimits['gpt-3.5-turbo'];
-                const usageStats = rateLimiter.getUsageStats();
-                const limitInfo = rateLimiter.checkRateLimits(model);
-                
-                // Update current usage
-                document.getElementById('tokens-this-minute').textContent = `Tokens (minute): ${usageStats.tokensThisMinute.toLocaleString()}`;
-                document.getElementById('requests-this-minute').textContent = `Requests (minute): ${usageStats.requestsThisMinute}`;
-                document.getElementById('tokens-today').textContent = `Tokens (today): ${usageStats.tokensToday.toLocaleString()}`;
-                document.getElementById('requests-today').textContent = `Requests (today): ${usageStats.requestsToday}`;
-                
-                // Update model limits
-                document.getElementById('limit-tokens-minute').textContent = `TPM: ${modelLimits.tokensPerMinute.toLocaleString()}`;
-                document.getElementById('limit-requests-minute').textContent = `RPM: ${modelLimits.requestsPerMinute}`;
-                document.getElementById('limit-tokens-day').textContent = `TPD: ${modelLimits.tokensPerDay ? modelLimits.tokensPerDay.toLocaleString() : 'N/A'}`;
-                document.getElementById('limit-requests-day').textContent = `RPD: ${modelLimits.requestsPerDay}`;
-                
-                // Update percentage bars
-                const tpmPercent = Math.floor(limitInfo.minuteTokenPercent * 100);
-                const rpmPercent = Math.floor(limitInfo.minuteRequestPercent * 100);
-                const tpdPercent = Math.floor(limitInfo.dayTokenPercent * 100);
-                const rpdPercent = Math.floor(limitInfo.dayRequestPercent * 100);
-                
-                // Set texts
-                document.getElementById('tpm-percent').textContent = `${tpmPercent}%`;
-                document.getElementById('rpm-percent').textContent = `${rpmPercent}%`;
-                document.getElementById('tpd-percent').textContent = `${tpdPercent}%`;
-                document.getElementById('rpd-percent').textContent = `${rpdPercent}%`;
-                
-                // Set progress bars
-                setProgressBar('tpm-progress', tpmPercent);
-                setProgressBar('rpm-progress', rpmPercent);
-                setProgressBar('tpd-progress', tpdPercent);
-                setProgressBar('rpd-progress', rpdPercent);
-                
-                // Update timers
-                const secondsToNextMinute = Math.ceil(limitInfo.timeToNextMinute / 1000);
-                document.getElementById('minute-reset-time').textContent = `${secondsToNextMinute}s`;
-                
-                // Update queue length
-                document.getElementById('queue-length').textContent = usageStats.queueLength;
-            }
-            
-            // Helper to set progress bar with appropriate color
-            function setProgressBar(id, percent) {
-                const progressBar = document.getElementById(id);
-                if (!progressBar) return;
-                
-                let color = '#28a745'; // Green
-                
-                if (percent >= 90) {
-                    color = '#dc3545'; // Red
-                } else if (percent >= 70) {
-                    color = '#fd7e14'; // Orange
-                } else if (percent >= 50) {
-                    color = '#ffc107'; // Yellow
+                    
+                    // Safely check for DOM elements before updating
+                    const limitTokensMinuteEl = document.getElementById('limit-tokens-minute');
+                    const limitRequestsMinuteEl = document.getElementById('limit-requests-minute');
+                    const limitTokensDayEl = document.getElementById('limit-tokens-day');
+                    const limitRequestsDayEl = document.getElementById('limit-requests-day');
+                    
+                    // Only update elements if they exist
+                    if (limitTokensMinuteEl) {
+                        limitTokensMinuteEl.textContent = `TPM: ${modelLimits.tokensPerMinute.toLocaleString()}`;
+                    }
+                    
+                    if (limitRequestsMinuteEl) {
+                        limitRequestsMinuteEl.textContent = `RPM: ${modelLimits.requestsPerMinute}`;
+                    }
+                    
+                    if (limitTokensDayEl) {
+                        limitTokensDayEl.textContent = `TPD: ${modelLimits.tokensPerDay ? modelLimits.tokensPerDay.toLocaleString() : 'N/A'}`;
+                    }
+                    
+                    if (limitRequestsDayEl) {
+                        limitRequestsDayEl.textContent = `RPD: ${modelLimits.requestsPerDay}`;
+                    }
+                    
+                    // Try to get limit info, handling any errors
+                    let limitInfo;
+                    try {
+                        limitInfo = rateLimiter.checkRateLimits(model);
+                    } catch (error) {
+                        console.warn("Could not check rate limits:", error);
+                        return;
+                    }
+                    
+                    // Update rate limit progress bar
+                    const rateBar = document.getElementById('rate-limit-bar');
+                    const percentEl = document.getElementById('rate-limit-percent');
+                    
+                    if (rateBar && percentEl && limitInfo) {
+                        const percent = Math.floor(limitInfo.limitPercent * 100);
+                        rateBar.style.width = `${percent}%`;
+                        percentEl.textContent = `${percent}%`;
+                        
+                        // Change bar color based on limit percentage
+                        if (percent > 80) {
+                            rateBar.style.backgroundColor = '#dc3545'; // Red
+                        } else if (percent > 60) {
+                            rateBar.style.backgroundColor = '#fd7e14'; // Orange
+                        } else {
+                            rateBar.style.backgroundColor = '#28a745'; // Green
+                        }
+                    }
+                } catch (error) {
+                    // Log the error but don't throw to prevent breaking the application
+                    console.error("Error updating rate limit details:", error);
                 }
-                
-                progressBar.style.width = `${percent}%`;
-                progressBar.style.backgroundColor = color;
             }
             
             // Show adaptive rate limit warnings
             function showRateLimitWarning(limitInfo, model) {
+                try {
                 if (!limitInfo || !model) return;
                 
-                // Only show warnings if we're at 60% or higher
-                if (limitInfo.limitPercent < 0.6) return;
-                
+                    // Only show warnings for significant usage
+                    if (limitInfo.limitPercent > 0.7) {
                 const limitPercent = Math.floor(limitInfo.limitPercent * 100);
-                let message = '';
-                let messageType = 'info';
                 
-                if (limitPercent >= 90) {
-                    messageType = 'error';
+                        let warningMsg = `Rate limit warning: ${limitPercent}% of ${model} limit used.`;
+                        
                     // Suggest switching to less resource-intensive model
-                    if (model === 'gpt-4' || model === 'gpt-4-turbo') {
-                        message = `Critical: API usage at ${limitPercent}%. Consider switching to gpt-4o-mini or gpt-3.5-turbo to avoid disruption.`;
-                    } else if (model === 'gpt-4o') {
-                        message = `Critical: API usage at ${limitPercent}%. Consider switching to gpt-4o-mini to avoid disruption.`;
-                    } else {
-                        message = `Critical: API usage at ${limitPercent}%. Further requests will be delayed until limits reset.`;
-                    }
-                } else if (limitPercent >= 75) {
-                    messageType = 'warning';
-                    message = `Warning: API usage at ${limitPercent}%. Requests may be delayed to avoid hitting rate limits.`;
+                        if ((model === 'gpt-4' || model === 'gpt-4-turbo') && limitPercent > 80) {
+                            warningMsg += " Consider switching to gpt-3.5-turbo to avoid hitting limits.";
+                        } else if (model === 'gpt-4o' && limitPercent > 80) {
+                            warningMsg += " Consider switching to gpt-4o-mini to avoid hitting limits.";
+                        }
+                        
+                        // Log the warning
+                        if (logger && typeof logger.warning === 'function') {
+                            logger.warning(warningMsg);
                 } else {
-                    message = `Notice: API usage at ${limitPercent}%. Rate limiting is active to manage request flow.`;
-                }
-                
-                logger[messageType](message);
-                
-                // Also show message in activity log
-                if (limitPercent >= 75) {
-                    addActivity(message);
-                }
-                
-                // Update status for critical warnings
-                if (limitPercent >= 90) {
-                    updateLiveStatus(message);
+                            console.warn(warningMsg);
+                        }
+                        
+                        // Update UI status
+                        updateLiveStatus(`Rate limit: ${limitPercent}% used - ${limitInfo.nextResetTime} until reset`);
+                    }
+                } catch (error) {
+                    console.error("Error showing rate limit warning:", error);
                 }
             }
             
             // Schedule regular rate limit updates (every 5 seconds during processing)
             function startRateLimitUpdates(model) {
-                const updateInterval = setInterval(() => {
-                    if (document.querySelector('.loading').style.display !== 'block') {
-                        clearInterval(updateInterval);
-                        return;
-                    }
-                    
-                    const limitInfo = rateLimiter.checkRateLimits(model);
-                    updateRateLimitIndicator(limitInfo);
+                // Initialize with current values
+                try {
                     updateRateLimitDetails(model);
-                    showRateLimitWarning(limitInfo, model);
-                }, 5000);
+                    const initialLimitInfo = rateLimiter.checkRateLimits(model);
+                    updateRateLimitIndicator(initialLimitInfo);
+                } catch (error) {
+                    console.error("Error initializing rate limit display:", error);
+                    logger.error(`Failed to initialize rate limit display: ${error.message}`);
+                }
                 
-                return updateInterval;
+                // Create a variable to track if the search is still active
+                let isSearchActive = true;
+                
+                const updateInterval = setInterval(() => {
+                    try {
+                        // Check if the search has completed
+                        if (!isSearchActive || searchButton.disabled === false) {
+                            clearInterval(updateInterval);
+                            return;
+                        }
+                        
+                        // Get current rate limit info and update UI
+                        const limitInfo = rateLimiter.checkRateLimits(model);
+                        
+                        // Update the limit indicators
+                        updateRateLimitIndicator(limitInfo);
+                        updateRateLimitDetails(model);
+                        
+                        // Show warnings if approaching limits
+                        showRateLimitWarning(limitInfo, model);
+                    } catch (error) {
+                        console.error("Error updating rate limits:", error);
+                        logger.error(`Rate limit update error: ${error.message}`);
+                    }
+                }, 5000); // Update every 5 seconds
+                
+                return {
+                    interval: updateInterval,
+                    setInactive: () => { isSearchActive = false; }
+                };
             }
             
+            // Function to update the loading text
+            function updateLoadingText(message) {
+                const loadingTextEl = document.querySelector('.loading-text');
+                if (loadingTextEl) {
+                    loadingTextEl.textContent = message;
+                }
+            }
+            
+            // Function to update the loading visibility
+            function showLoading(show, message = 'Processing your query...') {
+                // Only show loading during initial setup and final processing,
+                // not during the actual agent visualization phase
+                const loadingTextEl = document.querySelector('.loading-text');
+                if (loadingTextEl) {
+                    loadingTextEl.textContent = message;
+                }
+                
+                if (show) {
+                    loadingIndicator.style.display = 'flex';
+                } else {
+                    loadingIndicator.style.display = 'none';
+                }
+            }
+            
+            // Update the search button click handler
             searchButton.addEventListener('click', async function() {
-                const apiKey = apiKeyInput.value.trim();
-                const prompt = promptInput.value.trim();
+                // Hide any open panels
+                const thinkingDetail = document.getElementById('thinking-detail');
+                if (thinkingDetail) {
+                    thinkingDetail.style.display = 'none';
+                }
+                
+                // Show loading indicator initially while setting up
+                showLoading(true, 'Starting deep search...');
+                searchButton.disabled = true;
+                
+                // Update status
+                updateLiveStatus('Starting deep search process...');
+                
+                // Reset notifications
+                clearAnswerNotifications();
+                
+                // Reset various UI elements
+                finalAnswerDiv.textContent = '';
+                thinkingPathContent.innerHTML = '';
+                
+                // Get input values
+                const apiKey = document.getElementById('api-key').value.trim();
+                const prompt = document.getElementById('prompt-input').value.trim();
                 const model = document.getElementById('model-selector').value;
                 
+                // Make sure we're viewing the Agents view to start
+                switchView('agents-view');
+                
+                // Clear any previous tree and results
+                agentTree.reset();
+                
+                // Validate inputs
                 if (!apiKey) {
-                    logger.error('API key is missing');
-                    alert("Please enter your OpenAI API key");
+                    alert('Please enter your OpenAI API key');
+                    showLoading(false);
+                    searchButton.disabled = false;
+                    updateLiveStatus('Ready for input');
                     return;
                 }
                 
                 if (!prompt) {
-                    logger.error('Prompt is empty');
-                    alert("Please enter a question or prompt");
+                    alert('Please enter a question or prompt');
+                    showLoading(false);
+                    searchButton.disabled = false;
+                    updateLiveStatus('Ready for input');
                     return;
                 }
                 
-                // Save values to localStorage
-                saveToLocalStorage(apiKey, prompt, model);
-                
-                // Reset and prepare UI
-                agentTree.reset();
-                finalAnswerDiv.textContent = '';
-                thinkingPathContent.innerHTML = '';
-                treeView.innerHTML = '';
-                resultContainer.style.display = 'none';
-                
-                // Initialize live visualization
-                initLiveVisualization();
-                activityLog.innerHTML = '<div class="activity-entry">Starting deep search process...</div>';
-                liveTree.innerHTML = '';
-                
-                loadingIndicator.style.display = 'block';
-                searchButton.disabled = true;
-                
-                // Initialize rate limit indicator
-                updateRateLimitIndicator({ limitPercent: 0 });
-                const rateUpdateInterval = startRateLimitUpdates(model);
-                
-                // Initial update of detailed limit information
-                updateRateLimitDetails(model);
-                
-                logger.info('Starting deep search process');
-                logger.info(`User prompt: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`);
-                logger.info(`Using model: ${model}`);
+                // Declare rate update interval variable outside try-catch for proper scope
+                let rateUpdater;
                 
                 try {
-                    // Create the root agent
-                    const rootAgentId = agentTree.createRootAgent("Root Agent");
-                    activeAgentId = rootAgentId;
+                    saveToLocalStorage(apiKey, prompt, model);
+                    logger.info(`Starting deep search with prompt: ${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}`);
                     
-                    // Update live visualization
-                    updateThinkingIndicator("Root Agent");
-                    updateLiveStatus("Analyzing question to determine the best approach...");
-                    addActivity("Created Root Agent to analyze the question");
+                    // Create a root agent for this search
+                    agentTree.reset();
+                    const rootAgentId = agentTree.createRootAgent('Root Agent');
+                    
+                    // Start rate limit updates
+                    rateUpdater = startRateLimitUpdates(model);
+                    
+                    // Update limit details display
+                    updateRateLimitDetails(model);
+                    
+                    // Hide loading indicator now that we're about to show the tree
+                    // This allows the user to see the agent tree visualization
+                    showLoading(false);
+                    
+                    // Render the initial tree
                     renderLiveTree(agentTree);
                     
-                    // Start the search with the root agent
-                    logger.info('Starting with root agent');
-                    const finalResult = await processWithAgentTree(prompt, apiKey, rootAgentId, model);
+                    logger.info(`Using model: ${model}`);
                     
-                    // Display final result
-                    finalAnswerDiv.textContent = finalResult;
+                    // Add debug log
+                    console.log("Starting search with root agent:", rootAgentId);
+                    
+                    // Start the search with the root agent
+                    const result = await processWithAgentTree(prompt, apiKey, rootAgentId, model);
+                    
+                    // Debug the result
+                    console.log("Search completed, received result:", result);
+                    
+                    // Show loading briefly while preparing results
+                    showLoading(true, 'Search complete! Preparing results...');
+                    
+                    // Display the final answer
+                    console.log("Setting final answer to:", result);
+                    if (result) {
+                        // Use innerHTML instead of textContent to properly render content
+                        finalAnswerDiv.innerHTML = result.replace(/\n/g, '<br>');
+                        
+                        // Make sure the result is visible in the DOM
+                        console.log("Final answer element:", finalAnswerDiv);
+                        console.log("Final answer parent visibility:", finalAnswerDiv.parentElement.style.display);
+                        
+                        // Ensure result container is visible
+                        document.getElementById('result-container').style.display = 'block';
+                    } else {
+                        console.error("Got empty result from processWithAgentTree");
+                        finalAnswerDiv.innerHTML = '<span style="color: red;">No answer was returned. Please try again.</span>';
+                    }
+                    
                     logger.success('Search completed successfully');
                     
                     // Display thinking path (linear path from root to final agent)
                     const finalPath = agentTree.getFinalPath();
                     logger.info(`Final path includes ${finalPath.length} agents`);
                     
+                    // Display each step in the thinking path
                     finalPath.forEach(step => {
                         const botThinkingDiv = document.createElement('div');
                         botThinkingDiv.className = 'bot-thinking';
@@ -2610,19 +3751,39 @@
                     // Render the tree visualization
                     agentTree.renderTree();
                     
-                    resultContainer.style.display = 'block';
+                    // Update status bar
+                    updateLiveStatus('Deep search completed successfully');
+                    
+                    // Show notification that answer is ready
+                    showAnswerNotification();
+                    
+                    // Switch to the answer view using the standard function
+                    // This will ensure that tab switching remains functional
+                    switchView('answer-view');
+                    
+                    // Log to confirm the change
+                    console.log("Switched to answer view, tabs should remain functional");
                     
                     // Clean up rate limit updates
-                    clearInterval(rateUpdateInterval);
+                    if (rateUpdater) {
+                        rateUpdater.setInactive();
+                        clearInterval(rateUpdater.interval);
+                    }
                 } catch (error) {
                     console.error("Error during deep search:", error);
                     logger.error(`Search error: ${error.message}`);
                     alert("An error occurred during the deep search: " + error.message);
                     
                     // Clean up rate limit updates even on error
-                    clearInterval(rateUpdateInterval);
+                    if (rateUpdater) {
+                        rateUpdater.setInactive();
+                        clearInterval(rateUpdater.interval);
+                    }
+                    
+                    // Update status
+                    updateLiveStatus('Search failed: ' + error.message);
                 } finally {
-                    loadingIndicator.style.display = 'none';
+                    showLoading(false);
                     searchButton.disabled = false;
                 }
             });
@@ -2636,13 +3797,18 @@
                 // Update the active agent
                 activeAgentId = agentId;
                 
-                logger.info(`Processing with ${agent.name} (ID: ${agentId})`);
+                // Store which model this agent is using
+                agent.model = model;
+                
+                logger.info(`Processing with ${agent.name} (ID: ${agentId}, Model: ${model})`);
                 agentTree.updateAgentStatus(agentId, 'processing');
                 
-                // Update live visualization
-                updateThinkingIndicator(agent.name);
+                // Update status indicators for this agent
                 updateLiveStatus(`${agent.name} is analyzing the question...`);
                 addActivity(`${agent.name} is now thinking about the problem`);
+                
+                // Update thinking indicator and render tree
+                updateThinkingIndicator(agent.name);
                 renderLiveTree(agentTree);
                 
                 // Update tree visualization
@@ -2692,22 +3858,32 @@ Output format (for creating a single agent):
 {
     "thinking": "Your reasoning for why a specialist is needed",
     "action": "forward",
-    "newAgent": "Name of the specialized agent"
+    "newAgent": "Name of the specialized agent",
+    "recommendedModel": "Optional model recommendation (gpt-4o, gpt-4-turbo, gpt-4, gpt-4o-mini)"
 }
 
 Output format (for creating multiple agents):
 {
     "thinking": "Your reasoning for why the question should be split",
     "action": "branch",
+    "recommendedModel": "Optional model recommendation (gpt-4o, gpt-4-turbo, gpt-4, gpt-4o-mini)",
     "subAgents": [
-        {"name": "First specialized agent name", "focus": "What this agent should focus on"},
-        {"name": "Second specialized agent name", "focus": "What this agent should focus on"},
-        {"name": "Third specialized agent name", "focus": "What this agent should focus on (optional)"}
+        {"name": "First specialized agent name", "focus": "What this agent should focus on", "recommendedModel": "Optional model for this agent"},
+        {"name": "Second specialized agent name", "focus": "What this agent should focus on", "recommendedModel": "Optional model for this agent"},
+        {"name": "Third specialized agent name", "focus": "What this agent should focus on (optional)", "recommendedModel": "Optional model for this agent"}
     ]
 }`;
                 }
                 
-                systemMessage += `\n\nIMPORTANT: Always respond in valid JSON format.`;
+                systemMessage += `\n\nYou can also recommend a specific model for this task or for child agents based on the question complexity:
+- gpt-4o-mini: For simple, straightforward questions requiring basic knowledge
+- gpt-4-turbo: For moderate complexity requiring deeper reasoning
+- gpt-4: For complex tasks requiring detailed reasoning and high accuracy
+- gpt-4o: For the most complex tasks requiring advanced reasoning, creativity, or specialized knowledge
+
+This is optional, but helps optimize performance. If not specified, the parent model will be used.`;
+
+                systemMessage += `\n\nIMPORTANT: Always respond in valid JSON format. DO NOT include any text before or after the JSON. Ensure all quotes and brackets are properly balanced. Your entire response must be parseable as valid JSON. Do not include markdown formatting like triple backticks around the JSON.`;
                 
                 logger.info('Preparing API request to OpenAI');
 
@@ -2802,15 +3978,99 @@ Output format (for creating multiple agents):
                     
                     logger.info('Successfully received response data');
                     
-                    // Parse the JSON response
+                    // Parse the JSON response with more robust error handling
                     let parsedResponse;
                     try {
+                        // First attempt: try direct JSON parsing
+                    try {
                         parsedResponse = JSON.parse(agentResponse);
-                        logger.info('Successfully parsed JSON response from agent');
+                        } catch (jsonError) {
+                            // If direct parsing fails, try to clean the response
+                            logger.warning('Initial JSON parsing failed, attempting to fix response format');
+                            
+                            // Attempt to extract JSON content (in case there's surrounding text)
+                            const jsonMatch = agentResponse.match(/(\{[\s\S]*\})/);
+                            
+                            if (jsonMatch && jsonMatch[1]) {
+                                try {
+                                    parsedResponse = JSON.parse(jsonMatch[1]);
+                                    logger.info('Successfully parsed JSON after extracting content');
+                                } catch (extractError) {
+                                    // If extraction doesn't work, try more aggressive fixing
+                                    
+                                    // Try to ensure proper JSON closure by adding missing brackets if needed
+                                    let fixedJson = agentResponse;
+                                    
+                                    // Count opening and closing braces to detect mismatches
+                                    const openBraces = (fixedJson.match(/\{/g) || []).length;
+                                    const closeBraces = (fixedJson.match(/\}/g) || []).length;
+                                    
+                                    // Add missing closing braces if needed
+                                    if (openBraces > closeBraces) {
+                                        logger.warning(`Detected ${openBraces - closeBraces} missing closing braces, attempting to fix`);
+                                        for (let i = 0; i < openBraces - closeBraces; i++) {
+                                            fixedJson += '}';
+                                        }
+                                    }
+                                    
+                                    try {
+                                        parsedResponse = JSON.parse(fixedJson);
+                                        logger.info('Successfully parsed JSON after fixing missing brackets');
+                                    } catch (fixError) {
+                                        // If all automated fixes fail, throw the original error
+                                        throw jsonError;
+                                    }
+                                }
+                            } else {
+                                // If no JSON-like structure found, try to construct a valid JSON from content
+                                logger.warning('No valid JSON structure found, attempting to reconstruct');
+                                
+                                // Look for key elements that suggest structure
+                                const thinkingMatch = agentResponse.match(/thinking["']?\s*:\s*["']([^"']*)["']/);
+                                const actionMatch = agentResponse.match(/action["']?\s*:\s*["']([^"']*)["']/);
+                                const answerMatch = agentResponse.match(/answer["']?\s*:\s*["']([^"']*)["']/);
+                                
+                                if (thinkingMatch && actionMatch) {
+                                    // Attempt to rebuild a minimal valid JSON
+                                    const reconstructed = {
+                                        thinking: thinkingMatch[1] || "Error extracting thinking content",
+                                        action: actionMatch[1] || "answer"
+                                    };
+                                    
+                                    if (answerMatch) {
+                                        reconstructed.answer = answerMatch[1] || "Error extracting answer content";
+                                    } else {
+                                        reconstructed.answer = "The agent response could not be properly parsed. This is an automatically generated fallback answer.";
+                                    }
+                                    
+                                    parsedResponse = reconstructed;
+                                    logger.warning('Created reconstructed JSON from partial matches');
+                                } else {
+                                    // Last resort: construct a minimal valid response
+                                    parsedResponse = {
+                                        thinking: "JSON parsing error - could not extract original thinking",
+                                        action: "answer",
+                                        answer: "There was an error parsing the agent response. Here's the raw response:\n\n" + agentResponse
+                                    };
+                                    logger.warning('Created fallback JSON when no structure could be recovered');
+                                }
+                            }
+                        }
+                        
+                        logger.info('Successfully processed agent response');
                     } catch (error) {
                         logger.error('Failed to parse JSON response from agent');
                         logger.error(`Raw response: ${agentResponse.substring(0, 100)}...`);
-                        throw new Error("The agent did not respond with valid JSON");
+                        
+                        // Create a fallback response
+                        parsedResponse = {
+                            thinking: "Error parsing JSON response",
+                            action: "answer",
+                            answer: "There was an error processing the agent's response. This might be due to a formatting issue. Here's the beginning of the raw response:\n\n" + 
+                                agentResponse.substring(0, 500) + (agentResponse.length > 500 ? "..." : "")
+                        };
+                        
+                        logger.warning('Using fallback response due to parsing error');
                     }
                     
                     // Update the agent's thinking
@@ -2818,6 +4078,81 @@ Output format (for creating multiple agents):
                     
                     // Force answer if at max depth but agent still tries to create more agents
                     if (isMaxDepth && parsedResponse.action !== 'answer') {
+                        logger.warning(`Agent ${agent.name} (ID: ${agentId}) has reached maximum depth - creating continuation branch`);
+                        
+                        // Instead of forcing an answer, create a continuation agent
+                        if (parsedResponse.action === 'forward') {
+                            // Create a continuation agent with transferred context
+                            const continuationName = `${parsedResponse.newAgent} (Continued)`;
+                            const continuationId = agentTree.createContinuationAgent(agentId, continuationName);
+                            
+                            // Mark the current agent as continued
+                            agentTree.updateAgentStatus(agentId, 'continued');
+                            addActivity(`${agent.name} reached maximum depth and continued as ${continuationName}`);
+                            
+                            // Transfer the thinking context to the new agent
+                            const continuationContext = `CONTINUATION CONTEXT: This agent continues from ${agent.name} which reached the maximum depth limit (level 4). 
+Original thinking from parent agent:
+${parsedResponse.thinking}
+
+The parent agent wanted to forward to a specialist named "${parsedResponse.newAgent}".
+Please continue with the analysis as this specialist.`;
+                            
+                            // Process with the continuation agent
+                            const selectedModel = parsedResponse.recommendedModel && isValidModel(parsedResponse.recommendedModel) 
+                                ? parsedResponse.recommendedModel 
+                                : model;
+                                
+                            logger.info(`Creating continuation with model: ${selectedModel}`);
+                            return await processWithAgentTree(continuationContext + "\n\n" + prompt, apiKey, continuationId, selectedModel);
+                        } 
+                        else if (parsedResponse.action === 'branch') {
+                            // Create a continuation agent for synthesis with transferred context
+                            const continuationName = `Synthesizer (Continued from ${agent.name})`;
+                            const continuationId = agentTree.createContinuationAgent(agentId, continuationName);
+                            
+                            // Mark the current agent as continued
+                            agentTree.updateAgentStatus(agentId, 'continued');
+                            addActivity(`${agent.name} reached maximum depth and continued as ${continuationName}`);
+                            
+                            // Create a specialized context for the continuation agent
+                            const subAgentDescriptions = parsedResponse.subAgents.map(sa => 
+                                `- ${sa.name}: ${sa.focus}`
+                            ).join('\n');
+                            
+                            const continuationContext = `CONTINUATION CONTEXT: This agent continues from ${agent.name} which reached the maximum depth limit (level 4). 
+The original agent wanted to create these specialized agents:
+${subAgentDescriptions}
+
+Original thinking:
+${parsedResponse.thinking}
+
+Please analyze all these aspects together in an integrated approach.`;
+                            
+                            // Determine best model to use
+                            let selectedModel = model;
+                            if (parsedResponse.recommendedModel && isValidModel(parsedResponse.recommendedModel)) {
+                                selectedModel = parsedResponse.recommendedModel;
+                            } else {
+                                // Find the most powerful model recommended by any sub-agent
+                                let highestModelIndex = getModelIndex(model);
+                                
+                                for (const subAgent of parsedResponse.subAgents) {
+                                    if (subAgent.recommendedModel && isValidModel(subAgent.recommendedModel)) {
+                                        const modelIndex = getModelIndex(subAgent.recommendedModel);
+                                        if (modelIndex > highestModelIndex) {
+                                            highestModelIndex = modelIndex;
+                                            selectedModel = subAgent.recommendedModel;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            logger.info(`Creating continuation with model: ${selectedModel}`);
+                            return await processWithAgentTree(continuationContext + "\n\n" + prompt, apiKey, continuationId, selectedModel);
+                        }
+                        
+                        // Fallback to original behavior if needed
                         logger.error(`Agent ${agent.name} at max depth violated constraints by attempting to ${parsedResponse.action} instead of answering directly.`);
                         addActivity(`${agent.name} was required to answer directly (max depth reached)`);
                         
@@ -2846,6 +4181,7 @@ Output format (for creating multiple agents):
                     if (parsedResponse.action === 'answer') {
                         // Agent provides direct answer
                         logger.success(`${agent.name} provided an answer`);
+                        console.log(`Agent ${agent.name} answer:`, parsedResponse.answer);
                         agentTree.setAgentAnswer(agentId, parsedResponse.answer);
                         
                         // Update live visualization
@@ -2857,96 +4193,118 @@ Output format (for creating multiple agents):
                         return parsedResponse.answer;
                         
                     } else if (parsedResponse.action === 'forward') {
-                        // Agent forwards to a single agent
-                        const newAgentName = parsedResponse.newAgent;
-                        logger.info(`${agent.name} is forwarding to ${newAgentName}`);
-                        
-                        // Create the new agent
-                        const newAgentId = agentTree.createChildAgent(agentId, newAgentName);
-                        
-                        // Update the current agent status
-                        agentTree.updateAgentStatus(agentId, 'forwarded');
-                        
-                        // Update live visualization
-                        updateLiveStatus(`${agent.name} delegated to specialist: ${newAgentName}`);
-                        addActivity(`${agent.name} created a specialized agent: ${newAgentName}`);
-                        renderLiveTree(agentTree);
-                        
-                        agentTree.renderTree();
-                        
-                        // Process with the new agent
-                        return await processWithAgentTree(prompt, apiKey, newAgentId, model);
-                        
-                    } else if (parsedResponse.action === 'branch') {
-                        // Agent creates multiple sub-agents
-                        const subAgents = parsedResponse.subAgents;
-                        logger.info(`${agent.name} is branching to ${subAgents.length} sub-agents`);
-                        
-                        // Create all sub-agents
-                        const subAgentIds = [];
-                        for (const subAgent of subAgents) {
-                            const subAgentId = agentTree.createChildAgent(agentId, subAgent.name);
-                            subAgentIds.push({
-                                id: subAgentId,
-                                focus: subAgent.focus,
-                                name: subAgent.name
-                            });
-                            
-                            // Update live visualization for each new agent
-                            addActivity(`${agent.name} created sub-agent: ${subAgent.name}`);
+                        // Check if agent recommended a model
+                        const childModel = parsedResponse.recommendedModel && isValidModel(parsedResponse.recommendedModel) 
+                            ? parsedResponse.recommendedModel 
+                            : model;
+
+                        if (parsedResponse.recommendedModel && childModel !== model) {
+                            logger.info(`Agent recommended using model ${childModel} instead of ${model}`);
+                            addActivity(`${agent.name} recommended using ${childModel} for the child agent`);
                         }
                         
-                        // Update the current agent status
-                        agentTree.updateAgentStatus(agentId, 'forwarded');
+                        // Create the new agent
+                        logger.info(`Creating new agent: ${parsedResponse.newAgent}`);
                         
-                        // Update live visualization
-                        updateLiveStatus(`${agent.name} split the question into ${subAgents.length} parts`);
-                        renderLiveTree(agentTree);
+                        // Create a child agent with the specialized agent name
+                        const newAgentId = agentTree.createChildAgent(agentId, parsedResponse.newAgent);
                         
+                        // Update the UI
+                        agentTree.updateAgentStatus(agentId, 'delegated');
                         agentTree.renderTree();
                         
-                        // Update visualization to show parallel processing
-                        updateLiveStatus(`Processing ${subAgents.length} aspects in parallel...`);
+                        addActivity(`${agent.name} created child agent "${parsedResponse.newAgent}"`);
                         
-                        // Process each sub-agent in parallel and gather their results
-                        const subPromises = subAgentIds.map(subAgent => {
-                            const focusedPrompt = `${prompt}\n\nFocus specifically on this aspect: ${subAgent.focus}`;
-                            return processWithAgentTree(focusedPrompt, apiKey, subAgent.id, model);
-                        });
+                        // Call the next agent
+                        return await processWithAgentTree(prompt, apiKey, newAgentId, childModel);
                         
-                        // Wait for all sub-agents to complete
-                        const subResults = await Promise.all(subPromises);
+                    } else if (parsedResponse.action === 'branch') {
+                        // Check if agent recommended a base model for children
+                        const defaultChildModel = parsedResponse.recommendedModel && isValidModel(parsedResponse.recommendedModel) 
+                            ? parsedResponse.recommendedModel 
+                            : model;
+                        
+                        if (parsedResponse.recommendedModel && defaultChildModel !== model) {
+                            logger.info(`Agent recommended using model ${defaultChildModel} as default for child agents`);
+                            addActivity(`${agent.name} recommended using ${defaultChildModel} as default for child agents`);
+                        }
+
+                        // Create multiple sub-agents
+                        logger.info(`Creating branch with ${parsedResponse.subAgents.length} sub-agents`);
+                        
+                        // Mark the current agent as a router
+                        agentTree.updateAgentStatus(agentId, 'branched');
+                        
+                        // Create each sub-agent and record their results
+                        const subResults = [];
+                        
+                        for (const subAgent of parsedResponse.subAgents) {
+                            const subAgentId = agentTree.createChildAgent(agentId, subAgent.name);
+                            
+                            // Get model for this specific sub-agent, fall back to default or parent model
+                            const subAgentModel = subAgent.recommendedModel && isValidModel(subAgent.recommendedModel) 
+                                ? subAgent.recommendedModel 
+                                : defaultChildModel;
+                            
+                            if (subAgent.recommendedModel && subAgent.recommendedModel !== defaultChildModel) {
+                                logger.info(`Using custom model ${subAgent.recommendedModel} for agent "${subAgent.name}"`);
+                                addActivity(`Using ${subAgent.recommendedModel} for "${subAgent.name}"`);
+                            }
+                            
+                            // Create a focused prompt for this agent
+                            const focusedPrompt = `FOCUS ON THIS SPECIFIC ASPECT: ${subAgent.focus}\n\nORIGINAL QUESTION: ${prompt}`;
+                            
+                            addActivity(`Branch agent "${subAgent.name}" created with focus: ${subAgent.focus}`);
+                            
+                            // Process with the sub-agent
+                            const subResult = await processWithAgentTree(focusedPrompt, apiKey, subAgentId, subAgentModel);
+                            subResults.push({ name: subAgent.name, result: subResult });
+                        }
                         
                         // Combine the results
-                        const combinedResults = subResults.map((result, index) => {
-                            return `${subAgentIds[index].name}:\n${result}`;
-                        }).join('\n\n');
+                        const combinedResults = subResults.map(result => `${result.name}:\n${result.result}`).join('\n\n');
                         
                         // Create a synthesis agent to combine the results
-                        const synthesisAgentName = "Synthesis Agent";
+                        const synthesisAgentName = `${agent.name} Synthesizer`;
                         const synthesisAgentId = agentTree.createChildAgent(agentId, synthesisAgentName);
                         
-                        // Update live visualization
-                        addActivity(`Created ${synthesisAgentName} to combine all results`);
-                        updateLiveStatus(`${synthesisAgentName} is combining insights from all sub-agents`);
-                        renderLiveTree(agentTree);
+                        // Check if any agents have recommended using a more powerful model for synthesis
+                        let synthesisModel = model;
+                        let highestModelIndex = getModelIndex(model);
                         
+                        // Find the most powerful model recommended by any sub-agent
+                        for (const subAgent of parsedResponse.subAgents) {
+                            if (subAgent.recommendedModel && isValidModel(subAgent.recommendedModel)) {
+                                const modelIndex = getModelIndex(subAgent.recommendedModel);
+                                if (modelIndex > highestModelIndex) {
+                                    highestModelIndex = modelIndex;
+                                    synthesisModel = subAgent.recommendedModel;
+                                }
+                            }
+                        }
+                        
+                        // If we're using a more powerful model for synthesis, log it
+                        if (synthesisModel !== model) {
+                            logger.info(`Using ${synthesisModel} for synthesis agent based on sub-agent recommendations`);
+                            addActivity(`Using ${synthesisModel} for synthesis agent to combine results`);
+                        }
+                        
+                        // Update UI
+                        agentTree.updateAgentStatus(synthesisAgentId, 'processing');
                         agentTree.renderTree();
                         
-                        // Create a synthesis prompt
-                        const synthesisPrompt = `
-                        Here are the responses from multiple specialized agents regarding this question:
-                        "${prompt}"
+                        updateLiveStatus(`${synthesisAgentName} is integrating the results...`);
+                        addActivity(`${synthesisAgentName} is combining insights from all sub-agents`);
                         
-                        Agent responses:
+                        // Create a synthesis prompt
+                        const synthesisPrompt = `Synthesize the following results from multiple specialized agents into a comprehensive answer:
+                        
                         ${combinedResults}
                         
-                        Please synthesize these responses into a single coherent answer. Address any conflicts or contradictions.
-                        Focus on providing a comprehensive response that integrates the insights from all specialized agents.
-                        `;
+Please create a cohesive response that integrates the insights from all agents.`;
                         
                         // Process with the synthesis agent
-                        return await processWithAgentTree(synthesisPrompt, apiKey, synthesisAgentId, model);
+                        return await processWithAgentTree(synthesisPrompt, apiKey, synthesisAgentId, synthesisModel);
                     } else {
                         // Invalid action
                         logger.error(`Invalid action: ${parsedResponse.action}`);
@@ -2963,6 +4321,14 @@ Output format (for creating multiple agents):
                         // Wait for a minute and try again
                         await new Promise(r => setTimeout(r, 61000));
                         return processWithAgentTree(prompt, apiKey, agentId, model);
+                    }
+                    
+                    // Recovery system for repeated errors
+                    if (error.message === "The agent did not respond with valid JSON") {
+                        // Create a graceful recovery response to avoid cascading failures
+                        logger.warning(`Creating recovery response for JSON parsing error`);
+                        
+                        return `I encountered an issue processing this request. The specific error was: ${error.message}. This might be due to the complexity of the task or a temporary issue with the model.`;
                     }
                     
                     logger.error(`Error in processWithAgentTree: ${error.message}`);
@@ -2998,7 +4364,33 @@ Output format (for creating multiple agents):
                 
                 return depth;
             }
+
+            // Function to show notification that an answer is available
+            function showAnswerNotification() {
+                answerNotification.classList.add('visible');
+                answerReadyBanner.classList.add('visible');
+                
+                // Also display a message in the status bar
+                updateLiveStatus('Answer ready! Click the "Final Answer" tab to view results.');
+            }
+            
+            function clearAnswerNotifications() {
+                answerNotification.classList.remove('visible');
+                answerReadyBanner.classList.remove('visible');
+            }
         });
+
+        // Add a validation function to ensure the model is valid
+        function isValidModel(model) {
+            const validModels = ['gpt-4o-mini', 'gpt-4-turbo', 'gpt-4', 'gpt-4o', 'gpt-3.5-turbo'];
+            return validModels.includes(model);
+        }
+
+        // Add a function to determine model power/capability index
+        function getModelIndex(model) {
+            const modelOrder = ['gpt-4o-mini', 'gpt-3.5-turbo', 'gpt-4-turbo', 'gpt-4', 'gpt-4o'];
+            return modelOrder.indexOf(model);
+        }
     </script>
 </body>
 </html>
