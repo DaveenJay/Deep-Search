@@ -1748,6 +1748,59 @@
             font-size: 0.9rem;
             margin-left: 10px;
         }
+
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #495057;
+        }
+
+        .toggle-label input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        .control-group {
+            position: relative;
+            margin: 10px 0;
+            padding: 8px;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+        }
+
+        .control-group:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 6px 10px;
+            background-color: #343a40;
+            color: white;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+            z-index: 1000;
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 5px;
+            border-style: solid;
+            border-color: #343a40 transparent transparent transparent;
+        }
     </style>
 </head>
 <body>
@@ -1944,6 +1997,9 @@
     </div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+
+    <script src="xgboost.js"></script>
+    <script src="xgboost-agent.js"></script>
 
     <script>
         // Rate Limiter for managing API limits
@@ -2558,6 +2614,7 @@
                     this.finalAgentId = null;
                     this.nextId = 1;
                     this.selectedAgentId = null;
+                    this.useXGBoost = false; // Flag to enable/disable XGBoost
                 }
                 
                 reset() {
@@ -2568,9 +2625,14 @@
                     this.selectedAgentId = null;
                 }
                 
+                // Add method to enable XGBoost
+                enableXGBoost() {
+                    this.useXGBoost = true;
+                }
+                
                 createRootAgent(name) {
                     const id = this.nextId++;
-                    const agent = new Agent(id, name);
+                    const agent = this.useXGBoost ? new XGBoostAgent(id, name) : new Agent(id, name);
                     this.agents[id] = agent;
                     this.rootId = id;
                     return id;
@@ -2578,7 +2640,7 @@
                 
                 createChildAgent(parentId, name) {
                     const id = this.nextId++;
-                    const agent = new Agent(id, name, parentId);
+                    const agent = this.useXGBoost ? new XGBoostAgent(id, name, parentId) : new Agent(id, name, parentId);
                     this.agents[id] = agent;
                     
                     // Update the parent's children list
@@ -4391,6 +4453,31 @@ Please create a cohesive response that integrates the insights from all agents.`
             const modelOrder = ['gpt-4o-mini', 'gpt-3.5-turbo', 'gpt-4-turbo', 'gpt-4', 'gpt-4o'];
             return modelOrder.indexOf(model);
         }
+
+        // Add XGBoost toggle to the UI
+        document.addEventListener('DOMContentLoaded', function() {
+            const controlsDiv = document.querySelector('.controls');
+            
+            const xgboostToggle = document.createElement('div');
+            xgboostToggle.className = 'control-group';
+            xgboostToggle.innerHTML = `
+                <label class="toggle-label">
+                    <input type="checkbox" id="xgboost-toggle">
+                    Enable XGBoost
+                </label>
+                <div class="tooltip">
+                    Uses gradient boosting for improved decision making
+                </div>
+            `;
+            
+            controlsDiv.appendChild(xgboostToggle);
+            
+            // Handle XGBoost toggle
+            document.getElementById('xgboost-toggle').addEventListener('change', function() {
+                agentTree.enableXGBoost(this.checked);
+                updateLiveStatus(`XGBoost ${this.checked ? 'enabled' : 'disabled'}`);
+            });
+        });
     </script>
 </body>
 </html>
