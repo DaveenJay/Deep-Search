@@ -13,6 +13,11 @@ Deep Search is a web application that allows users to ask questions and get up-t
 
 ## Recent Updates
 
+- Implemented secure API key handling:
+  - Removed hardcoded API key from the code
+  - Added a form to collect the user's OpenAI API key after first search
+  - Store API key securely in the browser's localStorage
+  - Resume search automatically after API key is saved
 - Fixed CORS and JavaScript issues:
   - Restructured JavaScript to use proper event listeners
   - Added detailed error handling for API requests
@@ -55,11 +60,16 @@ Deep Search/
 
 ### API Keys and Security
 
-- The API.js file includes a placeholder for your OpenAI API key.
-- For production deployment, you should:
-  1. Never commit your API key to version control
-  2. Use environment variables or a secure backend service to provide the API key
-  3. Consider implementing rate limiting to manage API usage costs
+- The application now prompts users to input their own OpenAI API key.
+- API key handling:
+  1. User's API key is stored in their browser's localStorage
+  2. The key never leaves the user's device (client-side only)
+  3. The key is used only for communicating with the OpenAI API
+  4. Users can clear their localStorage to remove the saved key
+- For production deployment, you might want to:
+  1. Consider implementing a server-side proxy to handle API calls
+  2. Add encryption for the locally stored API key
+  3. Implement rate limiting to manage API usage costs
 
 ### Setup and Deployment
 
@@ -101,6 +111,8 @@ To run the application locally, you have several options:
 
 ### Future Improvements
 
+- Implement an option to change or clear the API key
+- Add API key validation before attempting searches
 - Create a backend proxy server to handle API requests securely
 - Add user settings for location preferences
 - Implement search history
