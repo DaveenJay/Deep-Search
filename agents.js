@@ -148,7 +148,36 @@ function prepareAnswerPayload(query, selectedAgent, agentPath) {
 
 ${pathDescription}
 
-Provide a helpful, accurate, and informative response to the user's query. Format your response in Markdown to enhance readability. Use headings, lists, and emphasis where appropriate to organize information clearly.`
+Provide a helpful, accurate, and informative response to the user's query. Format your response in Markdown to enhance readability. Use headings, lists, and emphasis where appropriate to organize information clearly.
+
+IMPORTANT - STRUCTURED DATA VISUALIZATION:
+For queries that involve data that can be better visualized (like comparisons, statistics, timelines, ratings, pros/cons, etc.), include a JSON block in your response with the structured data.
+
+Use the following format to include structured data:
+\`\`\`json-visualization
+{
+  "visualization_type": "[table|chart|timeline|comparison|rating|pros-cons|stat-cards|icon-list]",
+  "title": "Title for this visualization",
+  "description": "Optional description of this visualization",
+  "data": [
+    // Array of structured data objects appropriate for the chosen visualization type
+  ]
+}
+\`\`\`
+
+Different visualization_type options:
+1. "table" - For tabular data with columns and rows
+2. "chart" - For numerical data that can be visualized as a chart (specify "chart_type": "bar|line|pie")
+3. "timeline" - For chronological events
+4. "comparison" - For comparing multiple items on various attributes
+5. "rating" - For showing ratings/scores
+6. "pros-cons" - For listing advantages and disadvantages
+7. "stat-cards" - For key metrics or statistics with icons
+8. "icon-list" - For lists where each item would benefit from an icon
+
+Your JSON data structure should match the requirements of the chosen visualization type. You can include multiple visualizations in one response.
+
+Remember to provide your full text response as well - the JSON is a supplement, not a replacement for the main content.`
             },
             {
                 role: "user",
