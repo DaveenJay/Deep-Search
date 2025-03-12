@@ -1,120 +1,96 @@
-# Deep Search Project Knowledge Base
-
-Welcome to the Deep Search project knowledge base. This document serves as an entry point to understand the project structure and purpose.
+# Deep Search Project Documentation
 
 ## Project Overview
 
-Deep Search is a web application that allows users to ask questions and get up-to-date answers using OpenAI's Web Search API.
+Deep Search is an advanced AI-powered search application that utilizes a decision tree agent system to intelligently route user queries to the most appropriate OpenAI model. Rather than relying on a single AI model for all queries, Deep Search implements a hierarchical approach where agents can evaluate queries and delegate to specialized agents when appropriate.
 
-## Current Components
+## Key Components
 
-1. **search.html** - The main search interface with the Deep Search logo and a search field at the bottom.
-2. **API.js** - JavaScript module that connects to OpenAI's Web Search API.
+The project consists of these main components:
 
-## Recent Updates
+### 1. Agent System
+- Implements a decision tree structure where agents evaluate queries and make delegation decisions
+- Each agent can either handle a query directly or delegate to another agent
+- Specialized agents include Web Search Agent (with browsing capability), GPT-4o Agent (for complex reasoning), and GPT-4o Mini Agent (for faster, simpler responses)
+- See `Knowledge/agent-system.md` for detailed documentation
+- See `Knowledge/decision-tree-implementation.md` for technical implementation details
 
-- Implemented secure API key handling:
-  - Removed hardcoded API key from the code
-  - Added a form to collect the user's OpenAI API key after first search
-  - Store API key securely in the browser's localStorage
-  - Resume search automatically after API key is saved
-- Fixed CORS and JavaScript issues:
-  - Restructured JavaScript to use proper event listeners
-  - Added detailed error handling for API requests
-  - Added setup instructions for proper deployment
-  - Improved error messaging for better user experience
-- Added OpenAI Web Search API integration:
-  - Created API.js to handle connections to OpenAI's Web Search API
-  - Updated search.html to display search results with sources
-  - Added loading indicator and results display area
-  - Added error handling for API requests
-- Removed the search button entirely:
-  - Added functionality to trigger search when user presses Enter/Return key
-  - Added visual feedback (pulse animation) when search is triggered
-- Repositioned search button to be outside the search field (removed in later update)
-- Implemented color blending effect:
-  - Search field blends with background when empty
-  - Becomes more prominent and solid when content is entered or focused
-- Enhanced the search field design with:
-  - Improved visual aesthetics (shadows, gradients, animations)
-  - Better hover and focus states
-  - Smooth transitions and interactive feedback
-  - Subtle floating animation for the logo
-- Modified `search.html` to move the search field to the bottom of the page
-- Created `search.html` with a clean, modern interface featuring:
-  - Deep Search logo (magnifying glass emoji)
-  - Deep Search title
-  - Search input field with "Ask anything..." placeholder
+### 2. UI Components
+- Modern, responsive interface built with React
+- Includes components for query input, response display, and agent visualization
+- Features a panel showing the delegation path and agent decision-making process
+- See `Knowledge/ui-components.md` for detailed documentation
+
+### 3. API Integration
+- Secure integration with OpenAI API
+- Handles authentication, rate limiting, and error handling
+- Manages concurrent requests efficiently
 
 ## Project Structure
 
 ```
-Deep Search/
-├── search.html         # Main search interface
-├── API.js              # OpenAI Web Search API integration
-└── Knowledge/          # Documentation and instructions
-    └── Main.md         # This file - main entry point for documentation
+deep-search/
+├── public/               # Static assets
+├── src/
+│   ├── components/       # React components
+│   ├── utils/            # Utility functions
+│   ├── agents.js         # Agent decision tree implementation
+│   ├── App.js            # Main application component
+│   └── index.js          # Application entry point
+├── Knowledge/            # Documentation
+│   ├── MAIN.md           # This overview file
+│   ├── agent-system.md   # Agent selection system documentation
+│   ├── ui-components.md  # UI components documentation
+│   └── decision-tree-implementation.md  # Decision tree implementation details
+└── README.md             # Project README
 ```
+
+## Configuration
+
+The application requires the following configuration:
+
+1. **OpenAI API Key**: Required for accessing the OpenAI API.
+2. **Agent Configuration**: Defined in `agents.js`, including model specifications and delegation criteria.
+3. **Environmental Variables**: Set in `.env` file (not tracked in source control).
 
 ## Development Guidelines
 
-### API Keys and Security
+When making changes to this project:
 
-- The application now prompts users to input their own OpenAI API key.
-- API key handling:
-  1. User's API key is stored in their browser's localStorage
-  2. The key never leaves the user's device (client-side only)
-  3. The key is used only for communicating with the OpenAI API
-  4. Users can clear their localStorage to remove the saved key
-- For production deployment, you might want to:
-  1. Consider implementing a server-side proxy to handle API calls
-  2. Add encryption for the locally stored API key
-  3. Implement rate limiting to manage API usage costs
+1. **Agent System**:
+   - Maintain the decision tree structure where agents evaluate and delegate
+   - Use the standardized delegation format for consistency
+   - Ensure loop prevention by checking the agent path
 
-### Setup and Deployment
+2. **UI Components**:
+   - Keep the design clean and user-friendly
+   - Ensure responsive design for all screen sizes
+   - Maintain accessibility standards
 
-#### CORS Restrictions
+3. **Documentation**:
+   - Update the Knowledge files whenever making significant changes
+   - Keep MAIN.md as the central entry point to documentation
+   - Document complex logic with clear explanations
 
-When running this application locally, you will encounter CORS (Cross-Origin Resource Sharing) issues because:
+## Future Improvements
 
-1. Browsers enforce a security policy that prevents web pages from making requests to a different domain than the one that served the page.
-2. When opening HTML files directly (using the `file://` protocol), the browser treats it as having no domain.
-3. The OpenAI API requires proper authentication headers and doesn't allow direct requests from browsers without proper CORS headers.
+Planned improvements include:
 
-#### Running Locally
+1. **Enhanced Agent Customization**:
+   - Allow users to adjust the decision criteria for agent delegation
+   - Provide more transparency into agent decision-making
 
-To run the application locally, you have several options:
+2. **Additional Specialized Agents**:
+   - Add more specialized agents for specific domains
+   - Implement task-specific agents for enhanced performance
 
-1. **Use a local web server**:
-   - Python: `python -m http.server`
-   - Node.js: Install `http-server` via npm and run `http-server`
-   - VS Code: Use the "Live Server" extension
+3. **UI Enhancements**:
+   - Add more detailed visualization of the agent decision tree
+   - Implement user preferences for response formatting
 
-2. **Create a backend proxy**:
-   - Develop a simple server in Node.js, Python, or your preferred language
-   - Have the server handle the API requests to OpenAI
-   - This is the recommended approach for production
+## Git Operations History
 
-3. **Use a CORS proxy service** (not recommended for production):
-   - Various services exist that can proxy requests and add CORS headers
-   - This is less secure and should only be used for development
+### March 12, 2024
 
-### API Functionality
-
-- The OpenAI Web Search API supports two models:
-  - `gpt-4o-search-preview` (default, higher quality)
-  - `gpt-4o-mini-search-preview` (lower cost)
-- Search context size options:
-  - `high` - Most comprehensive results, highest cost
-  - `medium` - (default) Balanced approach
-  - `low` - Fastest response, lowest cost
-
-### Future Improvements
-
-- Implement an option to change or clear the API key
-- Add API key validation before attempting searches
-- Create a backend proxy server to handle API requests securely
-- Add user settings for location preferences
-- Implement search history
-- Create a results page with more detailed formatting
-- Add authentication to manage API usage 
+- Removed commit `e83dfddc5fd60dba25fb8006bfc60d70d72d621e` with message "Added API security documentation and .gitignore file" using `git reset --hard HEAD~1`.
+- Current HEAD is now at commit `9f5a5bc` with message "Updates to Search". 
