@@ -3,6 +3,7 @@
  * 
  * This file implements a decision tree of agents where each agent can evaluate
  * whether to handle a query or delegate to another agent in the tree.
+ * It also supports agents consulting with each other to collaborate on complex queries.
  */
 
 // Define our available agents
@@ -37,6 +38,9 @@ const agents = {
     }
 };
 
+// Store for agent communication history
+const agentConversations = {};
+
 /**
  * Gets an agent by its name
  * @param {string} agentName - The name of the agent to get
@@ -56,27 +60,50 @@ function getRootAgent() {
 }
 
 /**
- * Prepares a payload for delegation decision (whether an agent should handle or delegate)
+ * Creates a unique conversation ID for tracking agent communications
+ * @param {Array} agents - List of agent names involved in the conversation
+ * @returns {string} A unique conversation ID
+ */
+function createConversationId(agentNames) {
+    return `conv_${agentNames.sort().join('_')}_${Date.now()}`;
+}
+
+/**
+ * Prepares a payload for delegation decision (whether an agent should handle, delegate, or consult)
  * @param {string} query - The user's search query
  * @param {object} currentAgent - The current agent making the decision
  * @param {Array} agentPath - The path of agents already consulted
+ * @param {object} conversations - Previous conversations between agents
  * @returns {object} The prepared delegation decision payload
  */
-function prepareDelegationPayload(query, currentAgent, agentPath) {
+function prepareDelegationPayload(query, currentAgent, agentPath, conversations = {}) {
     // Build a string of the agent path for context
     const pathDescription = agentPath.length > 0 
         ? `You have received this query after it was evaluated by: ${agentPath.join(' → ')}.` 
         : 'You are the first agent to evaluate this query.';
     
-    // Get available agents to delegate to (excluding current and already consulted agents)
+    // Get available agents to delegate to or consult with (excluding current agent)
     const availableAgents = Object.values(agents)
-        .filter(agent => agent.name !== currentAgent.name && !agentPath.includes(agent.name))
+        .filter(agent => agent.name !== currentAgent.name)
         .map(agent => `${agent.name} (${agent.model}): ${agent.description}`);
     
-    // If there are no available agents to delegate to
-    const delegationOptions = availableAgents.length > 0 
-        ? `You can delegate to these agents:\n${availableAgents.join('\n')}` 
-        : 'There are no other agents available to delegate to. You must handle this query.';
+    // If there are no available agents
+    const agentOptions = availableAgents.length > 0 
+        ? `You can delegate to or consult with these agents:\n${availableAgents.join('\n')}` 
+        : 'There are no other agents available. You must handle this query yourself.';
+    
+    // Add any previous conversations for context
+    let conversationContext = '';
+    if (Object.keys(conversations).length > 0) {
+        conversationContext = '\n\nPrevious agent conversations related to this query:\n';
+        
+        for (const [convId, conversation] of Object.entries(conversations)) {
+            conversationContext += `\nConversation between ${conversation.participants.join(' and ')}:\n`;
+            for (const message of conversation.messages) {
+                conversationContext += `${message.agent}: ${message.content}\n`;
+            }
+        }
+    }
     
     const payload = {
         model: currentAgent.model,
@@ -85,30 +112,44 @@ function prepareDelegationPayload(query, currentAgent, agentPath) {
                 role: "system",
                 content: `You are the ${currentAgent.name} (${currentAgent.model}). ${currentAgent.description}
 
-${pathDescription}
+${pathDescription}${conversationContext}
 
-You need to decide whether to handle a user query yourself or delegate it to another agent.
+You need to decide whether to handle a user query yourself, delegate it to another agent, or consult with another agent for additional input.
 
-${delegationOptions}
+${agentOptions}
 
 Follow these steps:
-1. Briefly analyze the query
-2. Decide if you are the most appropriate agent to answer it
-3. Respond in EXACTLY this format:
+1. Analyze the query carefully
+2. Decide if you should:
+   - HANDLE the query yourself if it aligns with your capabilities
+   - DELEGATE the query if another agent is clearly better suited
+   - CONSULT with another agent if you need their input but still want to be involved
 
-DECISION: [HANDLE/DELEGATE]
-DELEGATE_TO: [Agent Name or NONE if handling yourself]
-REASON: [Brief explanation of your decision]
+3. Respond in EXACTLY one of these formats:
 
-Example if handling yourself:
+If handling yourself:
 DECISION: HANDLE
 DELEGATE_TO: NONE
-REASON: This query requires complex reasoning which I am well-suited for.
+REASON: [Brief explanation of your decision]
 
-Example if delegating:
+If delegating to another agent:
 DECISION: DELEGATE
-DELEGATE_TO: Web Search Agent
-REASON: This query requires current information that I don't have access to.`
+DELEGATE_TO: [Agent Name]
+REASON: [Brief explanation of your decision]
+
+If consulting with another agent:
+DECISION: CONSULT
+CONSULT_WITH: [Agent Name]
+QUESTION: [Specific question or information you need from them]
+REASON: [Brief explanation of why you need their input]
+
+Example consultations:
+DECISION: CONSULT
+CONSULT_WITH: Web Search Agent
+QUESTION: What are the latest research findings on quantum computing breakthroughs in 2024?
+REASON: I need up-to-date information that only the Web Search Agent can provide.
+
+Choose the option that will provide the best answer for the user.`
             },
             {
                 role: "user",
@@ -126,17 +167,84 @@ REASON: This query requires current information that I don't have access to.`
 }
 
 /**
+ * Prepares a consultation payload for agents to communicate with each other
+ * @param {string} query - The original user query
+ * @param {object} consultingAgent - The agent asking for consultation
+ * @param {object} consultedAgent - The agent being consulted
+ * @param {string} consultationQuestion - The specific question being asked
+ * @param {string} conversationId - The ID of the conversation
+ * @returns {object} The prepared consultation payload
+ */
+function prepareConsultationPayload(query, consultingAgent, consultedAgent, consultationQuestion, conversationId) {
+    // Get any previous messages in this conversation
+    const conversation = agentConversations[conversationId] || {
+        participants: [consultingAgent.name, consultedAgent.name],
+        messages: []
+    };
+    
+    // Build the message history
+    const messageHistory = conversation.messages.map(msg => {
+        return {
+            role: "assistant",
+            content: `[${msg.agent}]: ${msg.content}`
+        };
+    });
+    
+    const payload = {
+        model: consultedAgent.model,
+        messages: [
+            {
+                role: "system",
+                content: `You are the ${consultedAgent.name} (${consultedAgent.model}). ${consultedAgent.description}
+
+You are being consulted by ${consultingAgent.name} regarding a user query. Your task is to provide information or analysis specifically on what the consulting agent is asking you.
+
+Original user query: "${query}"
+
+Respond directly to the question from the consulting agent. Be concise but thorough.`
+            },
+            ...messageHistory,
+            {
+                role: "user",
+                content: `[${consultingAgent.name}]: ${consultationQuestion}`
+            }
+        ]
+    };
+    
+    // Add web search options if the agent supports it
+    if (consultedAgent.webSearch) {
+        payload.web_search_options = consultedAgent.config.web_search_options;
+    }
+    
+    return payload;
+}
+
+/**
  * Prepares a request payload for the selected agent to answer the query
  * @param {string} query - The user's search query
  * @param {object} selectedAgent - The agent to use for this query
  * @param {Array} agentPath - The path of agents that led to this agent
+ * @param {object} conversations - Conversations between agents about this query
  * @returns {object} The prepared payload for the API request
  */
-function prepareAnswerPayload(query, selectedAgent, agentPath) {
+function prepareAnswerPayload(query, selectedAgent, agentPath, conversations = {}) {
     // Build a description of the agent path
     const pathDescription = agentPath.length > 0 
         ? `You were selected to answer this query after it was evaluated by: ${agentPath.join(' → ')}.` 
         : 'You were selected as the first and most appropriate agent to answer this query.';
+    
+    // Add consultation context if available
+    let consultationContext = '';
+    if (Object.keys(conversations).length > 0) {
+        consultationContext = '\n\nYou have the following context from consultations with other agents:\n';
+        
+        for (const [convId, conversation] of Object.entries(conversations)) {
+            consultationContext += `\nConsultation with ${conversation.participants.filter(p => p !== selectedAgent.name).join(' and ')}:\n`;
+            for (const message of conversation.messages) {
+                consultationContext += `${message.agent}: ${message.content}\n`;
+            }
+        }
+    }
     
     // Base payload structure
     const payload = {
@@ -146,38 +254,9 @@ function prepareAnswerPayload(query, selectedAgent, agentPath) {
                 role: "system",
                 content: `You are the ${selectedAgent.name} (${selectedAgent.model}). ${selectedAgent.description}
 
-${pathDescription}
+${pathDescription}${consultationContext}
 
-Provide a helpful, accurate, and informative response to the user's query. Format your response in Markdown to enhance readability. Use headings, lists, and emphasis where appropriate to organize information clearly.
-
-IMPORTANT - STRUCTURED DATA VISUALIZATION:
-For queries that involve data that can be better visualized (like comparisons, statistics, timelines, ratings, pros/cons, etc.), include a JSON block in your response with the structured data.
-
-Use the following format to include structured data:
-\`\`\`json-visualization
-{
-  "visualization_type": "[table|chart|timeline|comparison|rating|pros-cons|stat-cards|icon-list]",
-  "title": "Title for this visualization",
-  "description": "Optional description of this visualization",
-  "data": [
-    // Array of structured data objects appropriate for the chosen visualization type
-  ]
-}
-\`\`\`
-
-Different visualization_type options:
-1. "table" - For tabular data with columns and rows
-2. "chart" - For numerical data that can be visualized as a chart (specify "chart_type": "bar|line|pie")
-3. "timeline" - For chronological events
-4. "comparison" - For comparing multiple items on various attributes
-5. "rating" - For showing ratings/scores
-6. "pros-cons" - For listing advantages and disadvantages
-7. "stat-cards" - For key metrics or statistics with icons
-8. "icon-list" - For lists where each item would benefit from an icon
-
-Your JSON data structure should match the requirements of the chosen visualization type. You can include multiple visualizations in one response.
-
-Remember to provide your full text response as well - the JSON is a supplement, not a replacement for the main content.`
+Provide a helpful, accurate, and informative response to the user's query. Format your response in Markdown to enhance readability. Use headings, lists, and emphasis where appropriate to organize information clearly.`
             },
             {
                 role: "user",
@@ -197,7 +276,7 @@ Remember to provide your full text response as well - the JSON is a supplement, 
 /**
  * Extracts delegation decision from an agent's response
  * @param {string} content - The content from the delegation decision response
- * @returns {object} Object with decision, delegateTo, and reason properties
+ * @returns {object} Object with decision type and related properties
  */
 function extractDelegationDecision(content) {
     if (!content) {
@@ -205,27 +284,48 @@ function extractDelegationDecision(content) {
     }
     
     // Extract decision using regex
-    const decisionMatch = content.match(/DECISION:\s*(HANDLE|DELEGATE)/i);
+    const decisionMatch = content.match(/DECISION:\s*(HANDLE|DELEGATE|CONSULT)/i);
     const decision = decisionMatch ? decisionMatch[1].toUpperCase() : 'HANDLE';
     
-    // Extract delegation target
-    const delegateMatch = content.match(/DELEGATE_TO:\s*(.*?)(?=$|\n)/im);
-    let delegateTo = delegateMatch ? delegateMatch[1].trim() : 'NONE';
-    
-    // If the decision is HANDLE, ensure delegateTo is NONE
-    if (decision === 'HANDLE') {
-        delegateTo = 'NONE';
+    if (decision === 'CONSULT') {
+        // Extract consultation target
+        const consultMatch = content.match(/CONSULT_WITH:\s*(.*?)(?=$|\n)/im);
+        const consultWith = consultMatch ? consultMatch[1].trim() : 'NONE';
+        
+        // Extract specific question
+        const questionMatch = content.match(/QUESTION:\s*(.*?)(?=REASON:|\n\n|$)/ims);
+        const question = questionMatch ? questionMatch[1].trim() : '';
+        
+        // Extract reason
+        const reasonMatch = content.match(/REASON:\s*(.*?)(?=$|\n\n)/ims);
+        const reason = reasonMatch ? reasonMatch[1].trim() : 'No reason provided';
+        
+        return { 
+            decision, 
+            consultWith, 
+            question, 
+            reason 
+        };
+    } else {
+        // Extract delegation target
+        const delegateMatch = content.match(/DELEGATE_TO:\s*(.*?)(?=$|\n)/im);
+        let delegateTo = delegateMatch ? delegateMatch[1].trim() : 'NONE';
+        
+        // If the decision is HANDLE, ensure delegateTo is NONE
+        if (decision === 'HANDLE') {
+            delegateTo = 'NONE';
+        }
+        
+        // Extract reason
+        const reasonMatch = content.match(/REASON:\s*(.*?)(?=$|\n|\r)/ims);
+        const reason = reasonMatch ? reasonMatch[1].trim() : 'No reason provided';
+        
+        return { decision, delegateTo, reason };
     }
-    
-    // Extract reason
-    const reasonMatch = content.match(/REASON:\s*(.*?)(?=$|\n|\r)/ims);
-    const reason = reasonMatch ? reasonMatch[1].trim() : 'No reason provided';
-    
-    return { decision, delegateTo, reason };
 }
 
 /**
- * Performs a search using a decision tree of agents
+ * Performs a search using a decision tree of agents with consultation capabilities
  * @param {string} query - The user's search query
  * @param {string} apiKey - The OpenAI API key
  * @returns {Promise} A promise that resolves to the search results
@@ -243,11 +343,14 @@ async function performAgentSearch(query, apiKey) {
     const agentPath = [];
     // Keep track of delegation decisions for visualization
     const delegationDecisions = [];
+    // Track agent conversations
+    const conversations = {};
     
     try {
         // Start with the root agent
         let currentAgent = getRootAgent();
         let maxDelegations = 3; // Prevent infinite delegation loops
+        let maxConsultations = 3; // Prevent infinite consultation loops
         
         // Loop through the decision tree until an agent handles the query or we hit max delegations
         while (maxDelegations > 0) {
@@ -257,7 +360,7 @@ async function performAgentSearch(query, apiKey) {
             agentPath.push(currentAgent.name);
             
             // Prepare delegation decision payload
-            const delegationPayload = prepareDelegationPayload(query, currentAgent, agentPath.slice(0, -1));
+            const delegationPayload = prepareDelegationPayload(query, currentAgent, agentPath.slice(0, -1), conversations);
             
             // Make the delegation decision request
             const delegationResponse = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -285,9 +388,79 @@ async function performAgentSearch(query, apiKey) {
             delegationDecisions.push({
                 agent: currentAgent.name,
                 decision: decision.decision,
-                delegateTo: decision.delegateTo,
-                reason: decision.reason
+                delegateTo: decision.delegateTo || decision.consultWith || 'NONE',
+                reason: decision.reason,
+                question: decision.question || null
             });
+            
+            // If the agent decides to CONSULT with another agent
+            if (decision.decision === 'CONSULT' && decision.consultWith !== 'NONE' && maxConsultations > 0) {
+                const consultedAgent = getAgentByName(decision.consultWith);
+                
+                // If the consulted agent exists and isn't the current agent
+                if (consultedAgent && consultedAgent.name !== currentAgent.name) {
+                    console.log(`Agent ${currentAgent.name} is consulting with ${consultedAgent.name}`);
+                    
+                    // Create a conversation ID for this consultation
+                    const conversationId = createConversationId([currentAgent.name, consultedAgent.name]);
+                    
+                    // Initialize the conversation if it doesn't exist
+                    if (!agentConversations[conversationId]) {
+                        agentConversations[conversationId] = {
+                            participants: [currentAgent.name, consultedAgent.name],
+                            messages: []
+                        };
+                    }
+                    
+                    // Add the question to the conversation
+                    agentConversations[conversationId].messages.push({
+                        agent: currentAgent.name,
+                        content: decision.question
+                    });
+                    
+                    // Prepare consultation payload
+                    const consultationPayload = prepareConsultationPayload(
+                        query, 
+                        currentAgent, 
+                        consultedAgent, 
+                        decision.question,
+                        conversationId
+                    );
+                    
+                    // Make the consultation request
+                    const consultationResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${apiKey}`
+                        },
+                        body: JSON.stringify(consultationPayload)
+                    });
+                    
+                    if (!consultationResponse.ok) {
+                        console.error(`Consultation with ${consultedAgent.name} failed. Continuing without consultation.`);
+                    } else {
+                        const consultationData = await consultationResponse.json();
+                        const consultationAnswer = consultationData.choices[0].message.content;
+                        
+                        // Add the answer to the conversation
+                        agentConversations[conversationId].messages.push({
+                            agent: consultedAgent.name,
+                            content: consultationAnswer
+                        });
+                        
+                        // Store this conversation for the final answer
+                        conversations[conversationId] = agentConversations[conversationId];
+                        
+                        console.log(`Consultation with ${consultedAgent.name} completed`);
+                    }
+                    
+                    maxConsultations--;
+                    
+                    // Continue with the same agent after consultation
+                    continue;
+                }
+            }
             
             // If the agent decides to handle the query, we're done with delegation
             if (decision.decision === 'HANDLE' || decision.delegateTo === 'NONE') {
@@ -310,7 +483,7 @@ async function performAgentSearch(query, apiKey) {
         
         // Now that we have our final agent, prepare the answer payload
         console.log(`Final agent ${currentAgent.name} will answer the query`);
-        const answerPayload = prepareAnswerPayload(query, currentAgent, agentPath.slice(0, -1));
+        const answerPayload = prepareAnswerPayload(query, currentAgent, agentPath.slice(0, -1), conversations);
         
         // Make the answer request
         const answerResponse = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -354,7 +527,8 @@ async function performAgentSearch(query, apiKey) {
             rawResponse: answerData,
             agent: currentAgent.name,
             agentPath: agentPath,
-            delegationDecisions: delegationDecisions
+            delegationDecisions: delegationDecisions,
+            consultations: Object.values(conversations)
         };
         
     } catch (error) {

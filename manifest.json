@@ -1,0 +1,16 @@
+{
+  "name": "Deep Search",
+  "short_name": "Deep Search",
+  "description": "Search with AI assistance",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4285f4",
+  "icons": [
+    {
+      "src": "icons/apple-touch-icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+} 
