@@ -2,6 +2,8 @@
 
 A search application with AI-powered results and agent collaboration.
 
+Try DeepSearch using your API keys. `http://deepsearch.lol`
+
 ## Project Structure
 
 The project uses a modular component-based architecture:
